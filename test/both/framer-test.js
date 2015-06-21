@@ -185,7 +185,8 @@ describe('Framer', function() {
             id: 1,
             fin: false,
             priority: 0,
-            dependent: 0,
+            dependency: 0,
+            exclusive: false,
             path: '/',
             headers: {
               ':authority': 'localhost',
@@ -216,7 +217,8 @@ describe('Framer', function() {
             id: 1,
             fin: false,
             priority: 0,
-            dependent: 0,
+            dependency: 0,
+            exclusive: false,
             path: undefined,
             headers: {
               ':status': '200',
@@ -277,7 +279,8 @@ describe('Framer', function() {
           expect({
             type: 'HEADERS',
             id: 4,
-            dependent: 0,
+            dependency: 0,
+            exclusive: false,
             priority: 0,
             fin: false,
             path: undefined,
@@ -305,7 +308,8 @@ describe('Framer', function() {
         expect([ {
           type: 'HEADERS',
           id: 4,
-          dependent: 0,
+          dependency: 0,
+          exclusive: false,
           priority: 0,
           fin: false,
           path: undefined,
@@ -315,7 +319,8 @@ describe('Framer', function() {
         }, {
           type: 'HEADERS',
           id: 4,
-          dependent: 0,
+          dependency: 0,
+          exclusive: false,
           priority: 0,
           fin: false,
           path: undefined,
@@ -344,7 +349,8 @@ describe('Framer', function() {
           expect({
             type: 'HEADERS',
             id: 4,
-            dependent: 0,
+            dependency: 0,
+            exclusive: false,
             priority: 0,
             fin: false,
             path: undefined,

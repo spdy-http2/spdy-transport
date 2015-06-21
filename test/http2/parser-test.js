@@ -110,7 +110,8 @@ describe('HTTP2 Parser', function() {
       pass(hex, {
         type: 'HEADERS',
         id: 1,
-        dependent: 0,
+        dependency: 0,
+        exclusive: false,
         fin: false,
         priority: 255,
         path: '/',
@@ -144,7 +145,8 @@ describe('HTTP2 Parser', function() {
       pass(first, {
         type: 'HEADERS',
         id: 1,
-        dependent: 0,
+        dependency: 0,
+        exclusive: false,
         fin: false,
         priority: 0,
         path: undefined,
@@ -164,7 +166,8 @@ describe('HTTP2 Parser', function() {
       pass(first + second, {
         type: 'HEADERS',
         id: 1,
-        dependent: 0,
+        dependency: 0,
+        exclusive: false,
         priority: 0,
         fin: false,
         path: undefined,
