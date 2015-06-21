@@ -1,10 +1,12 @@
 {
   "name": "spdy-transport",
-  "version": "1.0.0",
+  "version": "1.0.0-dev",
   "description": "SPDY v2, v3, v3.1 and HTTP2 transport",
   "license": "MIT",
   "keywords": [
-    "spdy", "http2", "transport"
+    "spdy",
+    "http2",
+    "transport"
   ],
   "repository": {
     "type": "git",
