@@ -184,9 +184,51 @@ describe('Framer', function() {
             type: 'HEADERS',
             id: 1,
             fin: false,
-            priority: 0,
-            dependency: 0,
-            exclusive: false,
+            priority: {
+              weight: 16,
+              parent: 0,
+              exclusive: false
+            },
+            path: '/',
+            headers: {
+              ':authority': 'localhost',
+              ':path': '/',
+              ':scheme': 'https',
+              ':method': 'GET',
+
+              a: 'b'
+            }
+          }, done);
+        });
+      });
+
+      it('should generate priority request frame', function(done) {
+        framer.requestFrame({
+          id: 1,
+          path: '/',
+          host: 'localhost',
+          method: 'GET',
+          headers: {
+            a: 'b'
+          },
+          priority: {
+            exclusive: true,
+            weight: 1
+          }
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'HEADERS',
+            id: 1,
+            fin: false,
+            priority: {
+              weight: 1,
+              parent: 0,
+
+              // No exclusive flag in SPDY
+              exclusive: version >= 4 ? true : false
+            },
             path: '/',
             headers: {
               ':authority': 'localhost',
@@ -216,9 +258,11 @@ describe('Framer', function() {
             type: 'HEADERS',
             id: 1,
             fin: false,
-            priority: 0,
-            dependency: 0,
-            exclusive: false,
+            priority: {
+              weight: 16,
+              parent: 0,
+              exclusive: false
+            },
             path: undefined,
             headers: {
               ':status': '200',
@@ -249,7 +293,6 @@ describe('Framer', function() {
             type: 'PUSH_PROMISE',
             id: 4,
             promisedId: 41,
-            priority: 0,
             fin: false,
             path: '/',
             headers: {
@@ -279,9 +322,11 @@ describe('Framer', function() {
           expect({
             type: 'HEADERS',
             id: 4,
-            dependency: 0,
-            exclusive: false,
-            priority: 0,
+            priority: {
+              parent: 0,
+              exclusive: false,
+              weight: 16
+            },
             fin: false,
             path: undefined,
             headers: {
@@ -308,9 +353,11 @@ describe('Framer', function() {
         expect([ {
           type: 'HEADERS',
           id: 4,
-          dependency: 0,
-          exclusive: false,
-          priority: 0,
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 16
+          },
           fin: false,
           path: undefined,
           headers: {
@@ -319,9 +366,11 @@ describe('Framer', function() {
         }, {
           type: 'HEADERS',
           id: 4,
-          dependency: 0,
-          exclusive: false,
-          priority: 0,
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 16
+          },
           fin: false,
           path: undefined,
           headers: {
@@ -349,9 +398,11 @@ describe('Framer', function() {
           expect({
             type: 'HEADERS',
             id: 4,
-            dependency: 0,
-            exclusive: false,
-            priority: 0,
+            priority: {
+              parent: 0,
+              exclusive: false,
+              weight: 16
+            },
             fin: false,
             path: undefined,
             headers: {

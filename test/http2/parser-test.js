@@ -110,10 +110,12 @@ describe('HTTP2 Parser', function() {
       pass(hex, {
         type: 'HEADERS',
         id: 1,
-        dependency: 0,
-        exclusive: false,
+        priority: {
+          parent: 0,
+          exclusive: false,
+          weight: 256
+        },
         fin: false,
-        priority: 255,
         path: '/',
         headers: {
           ':authority': '127.0.0.1:3232',
@@ -145,10 +147,12 @@ describe('HTTP2 Parser', function() {
       pass(first, {
         type: 'HEADERS',
         id: 1,
-        dependency: 0,
-        exclusive: false,
+        priority: {
+          parent: 0,
+          exclusive: false,
+          weight: 16
+        },
         fin: false,
-        priority: 0,
         path: undefined,
         headers: {
           hello: 'world'
@@ -166,9 +170,11 @@ describe('HTTP2 Parser', function() {
       pass(first + second, {
         type: 'HEADERS',
         id: 1,
-        dependency: 0,
-        exclusive: false,
-        priority: 0,
+        priority: {
+          parent: 0,
+          exclusive: false,
+          weight: 16
+        },
         fin: false,
         path: undefined,
         headers: {
@@ -297,7 +303,6 @@ describe('HTTP2 Parser', function() {
         type: 'PUSH_PROMISE',
         id: 1,
         promisedId: 2,
-        priority: 0,
         fin: false,
         headers: {
           hello: 'world'
@@ -313,7 +318,6 @@ describe('HTTP2 Parser', function() {
         type: 'PUSH_PROMISE',
         id: 1,
         promisedId: 2,
-        priority: 0,
         fin: false,
         headers: {
           hello: 'world'
@@ -416,9 +420,11 @@ describe('HTTP2 Parser', function() {
       pass('00000502000000000100000002ab', {
         type: 'PRIORITY',
         id: 1,
-        exclusive: false,
-        dependency: 2,
-        weight: 0xab
+        priority: {
+          exclusive: false,
+          parent: 2,
+          weight: 0xac
+        }
       }, done);
     });
 
@@ -426,9 +432,11 @@ describe('HTTP2 Parser', function() {
       pass('00000502000000000180000002ab', {
         type: 'PRIORITY',
         id: 1,
-        exclusive: true,
-        dependency: 2,
-        weight: 0xab
+        priority: {
+          exclusive: true,
+          parent: 2,
+          weight: 0xac
+        }
       }, done);
     });
 

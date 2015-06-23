@@ -120,4 +120,10 @@ describe('Stream Priority tree', function() {
       return tree.get(id).priority;
     }), [ 0.5, 0.25, 0.125, 0.125, 0.5 ]);
   });
+
+  it('should use default weight', function() {
+    tree.add({ id: 1, parent: 0 });
+
+    assert.equal(tree.get(1).weight, 16);
+  });
 });

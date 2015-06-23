@@ -57,4 +57,17 @@ describe('utils', function() {
       assert.equal(binarySearch(list, 8, compare), -1);
     });
   });
+
+  describe('priority to weight', function() {
+    var utils = transport.protocol.base.utils;
+
+    var toWeight = utils.priorityToWeight;
+    var toPriority = utils.weightToPriority;
+
+    it('should preserve weight=16', function() {
+      var priority = toPriority(16);
+      assert.equal(priority, 3);
+      assert.equal(toWeight(priority), 16);
+    });
+  });
 });
