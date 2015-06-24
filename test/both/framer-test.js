@@ -327,7 +327,7 @@ describe('Framer', function() {
         }, function(err) {
           assert(!err);
 
-          expect([{
+          expect([ {
             type: 'PUSH_PROMISE',
             id: 4,
             promisedId: 41,
@@ -350,7 +350,7 @@ describe('Framer', function() {
               parent: 0,
               weight: 1
             }
-          }], done);
+          } ], done);
         });
       });
     });
