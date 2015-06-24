@@ -307,6 +307,52 @@ describe('Framer', function() {
           }, done);
         });
       });
+
+      it('should generate priority frame', function(done) {
+        framer.pushFrame({
+          id: 4,
+          promisedId: 41,
+          path: '/',
+          host: 'localhost',
+          method: 'GET',
+          status: 200,
+          priority: {
+            exclusive: false,
+            weight: 1,
+            parent: 0
+          },
+          headers: {
+            a: 'b'
+          }
+        }, function(err) {
+          assert(!err);
+
+          expect([{
+            type: 'PUSH_PROMISE',
+            id: 4,
+            promisedId: 41,
+            fin: false,
+            path: '/',
+            headers: {
+              ':authority': 'localhost',
+              ':path': '/',
+              ':scheme': 'https',
+              ':method': 'GET',
+              ':status': '200',
+
+              a: 'b'
+            }
+          }, {
+            type: 'PRIORITY',
+            id: 41,
+            priority: {
+              exclusive: false,
+              parent: 0,
+              weight: 1
+            }
+          }], done);
+        });
+      });
     });
 
     describe('trailing HEADERS', function() {
