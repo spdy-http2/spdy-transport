@@ -19,10 +19,23 @@ describe('Stream Priority tree', function() {
     tree.add({ id: 3, parent: 0, weight: 2 });
     tree.add({ id: 4, parent: 1, weight: 2 });
 
-    // Results
     assert.deepEqual([ 1, 2, 3, 4, 5 ].map(function(id) {
       return tree.get(id).priority;
     }), [ 0.25, 0.5, 0.25, 0.125, 0.125 ]);
+
+    // Ranges
+    assert.deepEqual([ 1, 2, 3, 4, 5 ].map(function(id) {
+      return tree.get(id).getPriorityRange();
+    }), [
+      // First level
+      { from: 0.0, to: 0.25 },
+      { from: 0.5, to: 1.0 },
+      { from: 0.25, to: 0.5 },
+
+      // Second level
+      { from: 0, to: 0.125 },
+      { from: 0.125, to: 0.25 }
+    ]);
   });
 
   it('should create default node on error', function() {
@@ -59,7 +72,7 @@ describe('Stream Priority tree', function() {
 
     assert.deepEqual([ 2, 3, 4, 5 ].map(function(id) {
       return tree.get(id).priority;
-    }), [ 0.4, 0.2, 0.2, 0.2 ]);
+    }), [ 0.4, 0.2, 0.2, 0.19999999999999996 ]);
   });
 
   it('should move children on exclusive addition', function() {
@@ -123,6 +136,12 @@ describe('Stream Priority tree', function() {
 
   it('should use default weight', function() {
     tree.add({ id: 1, parent: 0 });
+
+    assert.equal(tree.get(1).weight, 16);
+  });
+
+  it('should create default node', function() {
+    tree.addDefault(1);
 
     assert.equal(tree.get(1).weight, 16);
   });
