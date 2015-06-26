@@ -5,21 +5,9 @@ var base = transport.protocol.base;
 
 describe('Frame Scheduler', function() {
   var scheduler;
-  var random = [];
   beforeEach(function() {
-    scheduler = base.Scheduler.create({
-      random: function() {
-        if (random.length === 0)
-          return Math.random();
-        else
-          return random.shift();
-      }
-    });
+    scheduler = base.Scheduler.create();
   });
-
-  function range(from, to) {
-    return { from: from, to: to };
-  }
 
   function chunk(stream, priority, chunks, callback) {
     return {
@@ -45,50 +33,57 @@ describe('Frame Scheduler', function() {
   }
 
   it('should schedule and emit one frame', function(done) {
-    scheduler.write(chunk(0, range(0, 1), [ 'hello', ' ', 'world' ]));
+    scheduler.write(chunk(0, 0, [ 'hello', ' ', 'world' ]));
 
     expect('hello world', done);
   });
 
   it('should schedule and emit two frames', function(done) {
-    scheduler.write(chunk(0, range(0, 1), [ 'hello', ' ' ]));
-    scheduler.write(chunk(0, range(0, 1), [ 'world' ]));
+    scheduler.write(chunk(0, 0, [ 'hello', ' ' ]));
+    scheduler.write(chunk(0, 0, [ 'world' ]));
 
     expect('hello world', done);
   });
 
   it('should interleave between two streams', function(done) {
-    random.push(0.25, 0.75, 0.25, 0.75);
-
-    scheduler.write(chunk(0, range(0, 0.5), [ 'hello ' ]));
-    scheduler.write(chunk(0, range(0, 0.5), [ ' hello ' ]));
-    scheduler.write(chunk(1, range(0.5, 1), [ 'world!' ]));
-    scheduler.write(chunk(1, range(0.5, 1), [ 'world' ]));
+    scheduler.write(chunk(0, 0, [ 'hello ' ]));
+    scheduler.write(chunk(0, 0, [ ' hello ' ]));
+    scheduler.write(chunk(1, 0, [ 'world!' ]));
+    scheduler.write(chunk(1, 0, [ 'world' ]));
 
     expect('hello world! hello world', done);
   });
 
   it('should interleave between two shuffled streams', function(done) {
-    random.push(0.25, 0.75, 0.25, 0.75);
-
-    scheduler.write(chunk(0, range(0, 0.5), [ 'hello ' ]));
-    scheduler.write(chunk(1, range(0.5, 1), [ 'world!' ]));
-    scheduler.write(chunk(1, range(0.5, 1), [ 'world' ]));
-    scheduler.write(chunk(0, range(0, 0.5), [ ' hello ' ]));
+    scheduler.write(chunk(0, 0, [ 'hello ' ]));
+    scheduler.write(chunk(1, 0, [ 'world!' ]));
+    scheduler.write(chunk(1, 0, [ 'world' ]));
+    scheduler.write(chunk(0, 0, [ ' hello ' ]));
 
     expect('hello world! hello world', done);
   });
 
   it('should interleave between three streams', function(done) {
-    random.push(0.25, 0.5, 0.8, 0.25, 0.5);
-
-    scheduler.write(chunk(0, range(0, 0.33), [ 'hello ' ]));
-    scheduler.write(chunk(1, range(0.33, 0.66), [ 'world!' ]));
-    scheduler.write(chunk(1, range(0.33, 0.66), [ 'world' ]));
-    scheduler.write(chunk(0, range(0, 0.33), [ ' hello ' ]));
-    scheduler.write(chunk(2, range(0.66, 1), [ ' (yes)' ]));
+    scheduler.write(chunk(0, 0, [ 'hello ' ]));
+    scheduler.write(chunk(1, 0, [ 'world!' ]));
+    scheduler.write(chunk(1, 0, [ 'world' ]));
+    scheduler.write(chunk(0, 0, [ ' hello ' ]));
+    scheduler.write(chunk(2, 0, [ ' (yes)' ]));
 
     expect('hello world! (yes) hello world', done);
+  });
+
+  it('should respect priority window', function(done) {
+    scheduler.write(chunk(0, 0.5, [ 'a' ]));
+    scheduler.write(chunk(1, 0.4, [ 'b' ]));
+    scheduler.write(chunk(2, 0.3, [ 'c' ]));
+    scheduler.write(chunk(3, 0.2, [ 'd' ]));
+    scheduler.write(chunk(4, 0.1, [ 'f' ]));
+    scheduler.write(chunk(0, 0.5, [ 'A' ]));
+    scheduler.write(chunk(1, 0.4, [ 'B' ]));
+    scheduler.write(chunk(2, 0.3, [ 'C' ]));
+
+    expect('abcABCdf', done);
   });
 
   it('should not interleave sync data', function(done) {
