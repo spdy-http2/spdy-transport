@@ -232,6 +232,80 @@ describe('Transport', function() {
       });
     });
 
+    it('should abort request', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/hello-split',
+        headers: { }
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('error', function(err) {
+          assert(err);
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.abort();
+      });
+    });
+
+    it('should abort request with pending write', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/hello-split',
+        headers: { }
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('data', function() {
+          assert(false, 'got data on aborted stream');
+        });
+
+        stream.on('error', function(err) {
+          assert(err);
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.write('hello', function(err) {
+          assert(err);
+
+          // Make sure it will emit the errors
+          process.nextTick(done);
+        });
+        stream.on('error', function(err) {
+          assert(err);
+        });
+
+        stream.abort();
+      });
+    });
+
+    it('should abort request on closed stream', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/hello-split',
+        headers: { }
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.resume();
+        stream.end();
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {});
+        stream.resume();
+        stream.end();
+
+        stream.once('close', function() {
+          stream.abort(done);
+        });
+      });
+    });
+
     it('should send and receive ping', function(done) {
       client.ping(function() {
         server.ping(done);
