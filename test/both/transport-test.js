@@ -306,6 +306,55 @@ describe('Transport', function() {
       });
     });
 
+    it('should create prioritized stream', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/path',
+        headers: { },
+        priority: {
+          parent: 0,
+          exclusive: false,
+          weight: 42
+        }
+      }, function(err, stream) {
+        assert(!err);
+      });
+
+      server.on('stream', function(stream) {
+        var priority = stream._spdyState.priority;
+
+        // SPDY has just 3 bits of priority, can't fit 256 range into it
+        if (version >= 4)
+          assert.equal(priority.weight, 42);
+        else
+          assert.equal(priority.weight, 36);
+        done();
+      });
+    });
+
+    if (version >= 4) {
+      it('should update stream priority', function(done) {
+        client.request({
+          method: 'GET',
+          path: '/hello-split',
+          headers: { }
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.on('priority', function(info) {
+            assert.equal(info.parent, 0);
+            assert.equal(info.exclusive, false);
+            assert.equal(info.weight, 42);
+            done();
+          });
+        });
+
+        server.on('stream', function(stream) {
+          stream.setPriority({ parent: 0, exclusive: false, weight: 42 });
+        });
+      });
+    }
+
     it('should send and receive ping', function(done) {
       client.ping(function() {
         server.ping(done);
