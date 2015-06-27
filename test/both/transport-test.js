@@ -186,9 +186,7 @@ describe('Transport', function() {
       a.fill('a');
 
       client.request({
-        method: 'GET',
-        path: '/hello-split',
-        headers: { }
+        path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
 
@@ -207,9 +205,7 @@ describe('Transport', function() {
 
     it('should emit trailing headers', function(done) {
       client.request({
-        method: 'GET',
-        path: '/hello-split',
-        headers: { }
+        path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
 
@@ -234,9 +230,7 @@ describe('Transport', function() {
 
     it('should abort request', function(done) {
       client.request({
-        method: 'GET',
-        path: '/hello-split',
-        headers: { }
+        path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
 
@@ -253,9 +247,7 @@ describe('Transport', function() {
 
     it('should abort request with pending write', function(done) {
       client.request({
-        method: 'GET',
-        path: '/hello-split',
-        headers: { }
+        path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
 
@@ -285,9 +277,7 @@ describe('Transport', function() {
 
     it('should abort request on closed stream', function(done) {
       client.request({
-        method: 'GET',
-        path: '/hello-split',
-        headers: { }
+        path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
 
@@ -308,9 +298,7 @@ describe('Transport', function() {
 
     it('should create prioritized stream', function(done) {
       client.request({
-        method: 'GET',
         path: '/path',
-        headers: { },
         priority: {
           parent: 0,
           exclusive: false,
@@ -336,8 +324,7 @@ describe('Transport', function() {
       it('should update stream priority', function(done) {
         client.request({
           method: 'GET',
-          path: '/hello-split',
-          headers: { }
+          path: '/hello-split'
         }, function(err, stream) {
           assert(!err);
 
@@ -354,6 +341,33 @@ describe('Transport', function() {
         });
       });
     }
+
+    it('should create PUSH_PROMISE', function(done) {
+      var parent = client.request({
+        path: '/parent'
+      }, function(err) {
+        assert(!err);
+        parent.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.on('pushPromise', function(push) {
+          assert.equal(push.path, '/push');
+          done();
+        });
+      });
+    });
 
     it('should send and receive ping', function(done) {
       client.ping(function() {
