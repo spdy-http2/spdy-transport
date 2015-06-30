@@ -5,6 +5,7 @@ var streamPair = require('stream-pair');
 var transport = require('../../');
 
 describe('Transport', function() {
+  var pair = null;
   var server = null;
   var client = null;
 
@@ -23,7 +24,7 @@ describe('Transport', function() {
   function protocol(name, version, body) {
     describe(name + ' (v' + version + ')', function() {
       beforeEach(function() {
-        var pair = streamPair.create();
+        pair = streamPair.create();
 
         server = transport.connection.create(pair, {
           protocol: name,
@@ -425,7 +426,7 @@ describe('Transport', function() {
       });
     });
 
-    it('should error on request after GOAWAY', function(done) {
+    it('should ignore request after GOAWAY', function(done) {
       client.request({
         path: '/hello-split'
       }, function(err, stream) {
@@ -450,6 +451,30 @@ describe('Transport', function() {
       server.on('frame', function(frame) {
         if (frame.type === 'HEADERS' && --waiting === 0)
           setImmediate(done);
+      });
+    });
+
+    it('should emit `close` after GOAWAY', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.resume();
+        stream.end();
+      });
+
+      var once = false;
+      server.on('stream', function(stream) {
+        assert(!once);
+        once = true;
+
+        stream.respond(200, {});
+        stream.resume();
+        stream.end();
+
+        pair.destroySoon = done;
+        server.end();
       });
     });
 
