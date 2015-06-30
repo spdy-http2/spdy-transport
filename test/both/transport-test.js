@@ -125,6 +125,37 @@ describe('Transport', function() {
       });
     });
 
+    it('should send data after response', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/hello-with-data',
+        headers: {
+          a: 'b',
+          c: 'd'
+        }
+      }, function(err, stream) {
+        assert(!err);
+
+        var gotResponse = false;
+        stream.on('response', function() {
+          gotResponse = true;
+        });
+
+        expectData(stream, 'ohai', function() {
+          assert(gotResponse);
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+          ohai: 'yes'
+        });
+
+        stream.end('ohai');
+      });
+    });
+
     it('should control the flow of the request', function(done) {
       var a = new Buffer(128);
       a.fill('a');
