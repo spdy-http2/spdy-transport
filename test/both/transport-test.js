@@ -156,6 +156,31 @@ describe('Transport', function() {
       });
     });
 
+    it('should truncate data to fit maxChunk', function(done) {
+      var big = new Buffer(1024);
+      big.fill('a');
+
+      client.request({
+        path: '/hello-with-data'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.setMaxChunk(10);
+        stream.end(big);
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+          ohai: 'yes'
+        });
+
+        stream.on('data', function(chunk) {
+          assert(chunk.length <= 10);
+        });
+        expectData(stream, big, done);
+      });
+    });
+
     it('should control the flow of the request', function(done) {
       var a = new Buffer(128);
       a.fill('a');
