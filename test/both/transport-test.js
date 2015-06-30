@@ -425,6 +425,34 @@ describe('Transport', function() {
       });
     });
 
+    it('should error on request after GOAWAY', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        client.request({
+          path: '/second'
+        }, function(err, stream) {
+        });
+      });
+
+      var once = false;
+      server.on('stream', function(stream) {
+        assert(!once);
+        once = true;
+
+        // Send GOAWAY
+        server.end();
+      });
+
+      var waiting = 2;
+      server.on('frame', function(frame) {
+        if (frame.type === 'HEADERS' && --waiting === 0)
+          setImmediate(done);
+      });
+    });
+
     it('should send and receive ping', function(done) {
       client.ping(function() {
         server.ping(done);
