@@ -502,14 +502,14 @@ describe('Framer', function() {
       it('should generate regular frame', function(done) {
         framer.goawayFrame({
           lastId: 42,
-          code: 23
+          code: 'PROTOCOL_ERROR'
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'GOAWAY',
             lastId: 42,
-            code: 23
+            code: 'PROTOCOL_ERROR'
           }, done);
         });
       });

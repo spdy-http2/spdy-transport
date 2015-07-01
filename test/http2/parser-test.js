@@ -390,7 +390,7 @@ describe('HTTP2 Parser', function() {
       pass('0000080700000000000000000100000002', {
         type: 'GOAWAY',
         lastId: 1,
-        code: 2
+        code: 'INTERNAL_ERROR'
       }, done);
     });
 
@@ -398,7 +398,7 @@ describe('HTTP2 Parser', function() {
       pass('00000a0700000000000000000100000002dead', {
         type: 'GOAWAY',
         lastId: 1,
-        code: 2,
+        code: 'INTERNAL_ERROR',
         debug: new Buffer('dead', 'hex')
       }, done);
     });

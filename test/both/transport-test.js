@@ -426,6 +426,39 @@ describe('Transport', function() {
       });
     });
 
+    it('should fail on disabled PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('pushPromise', function() {
+          assert(false);
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+        });
+
+        client.on('close', function(err) {
+          assert(err);
+          done();
+        });
+      });
+    });
+
     it('should ignore request after GOAWAY', function(done) {
       client.request({
         path: '/hello-split'
