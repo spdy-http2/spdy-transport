@@ -400,40 +400,14 @@ describe('Transport', function() {
     }
 
     it('should create PUSH_PROMISE', function(done) {
-      var parent = client.request({
-        path: '/parent'
-      }, function(err) {
-        assert(!err);
-        parent.pushPromise({
-          path: '/push',
-          priority: {
-            parent: 0,
-            exclusive: false,
-            weight: 42
-          }
-        }, function(err, stream) {
-          assert(!err);
-        });
-      });
-
-      server.on('stream', function(stream) {
-        assert.equal(stream.path, '/parent');
-
-        stream.on('pushPromise', function(push) {
-          assert.equal(push.path, '/push');
-          done();
-        });
-      });
-    });
-
-    it('should fail on disabled PUSH_PROMISE', function(done) {
       client.request({
         path: '/parent'
       }, function(err, stream) {
         assert(!err);
 
-        stream.on('pushPromise', function() {
-          assert(false);
+        stream.on('pushPromise', function(push) {
+          assert.equal(push.path, '/push');
+          done();
         });
       });
 
@@ -451,10 +425,69 @@ describe('Transport', function() {
         }, function(err, stream) {
           assert(!err);
         });
+      });
+    });
+
+    it('should fail on disabled PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream._spdyState.framer.enablePush(true);
+        stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+        });
 
         client.on('close', function(err) {
           assert(err);
           done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.on('pushPromise', function() {
+          assert(false);
+        });
+      });
+    });
+
+    it('should get error on disabled PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(err);
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+
+        stream.on('pushPromise', function() {
+          assert(false);
         });
       });
     });
