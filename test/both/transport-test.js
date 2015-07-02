@@ -157,6 +157,45 @@ describe('Transport', function() {
       });
     });
 
+    it('should fail to send data after FIN', function(done) {
+      client.request({
+        method: 'GET',
+        path: '/hello-with-data',
+        headers: {
+          a: 'b',
+          c: 'd'
+        }
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.write('hello ');
+        stream.end('world', function() {
+          stream._spdyState.framer.dataFrame({
+            id: stream.id,
+            priority: 0,
+            fin: false,
+            data: new Buffer('no way')
+          });
+        });
+
+        stream.on('error', next);
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+          ohai: 'yes'
+        });
+
+        expectData(stream, 'hello world', next);
+      });
+
+      var waiting = 2;
+      function next() {
+        if (--waiting === 0)
+          return done();
+      }
+    });
+
     it('should truncate data to fit maxChunk', function(done) {
       var big = new Buffer(1024);
       big.fill('a');

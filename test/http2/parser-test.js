@@ -116,6 +116,7 @@ describe('HTTP2 Parser', function() {
           weight: 256
         },
         fin: false,
+        writable: true,
         path: '/',
         headers: {
           ':authority': '127.0.0.1:3232',
@@ -153,6 +154,7 @@ describe('HTTP2 Parser', function() {
           weight: 16
         },
         fin: false,
+        writable: true,
         path: undefined,
         headers: {
           hello: 'world'
@@ -176,6 +178,7 @@ describe('HTTP2 Parser', function() {
           weight: 16
         },
         fin: false,
+        writable: true,
         path: undefined,
         headers: {
           hello: 'world',
