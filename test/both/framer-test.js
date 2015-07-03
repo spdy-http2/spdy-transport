@@ -468,6 +468,29 @@ describe('Framer', function() {
           }, done);
         });
       });
+
+      it('should generate empty frame', function(done) {
+        framer.headersFrame({
+          id: 4,
+          headers: {}
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'HEADERS',
+            id: 4,
+            priority: {
+              parent: 0,
+              exclusive: false,
+              weight: 16
+            },
+            fin: false,
+            writable: true,
+            path: undefined,
+            headers: {}
+          }, done);
+        });
+      });
     });
 
     describe('RST', function() {
