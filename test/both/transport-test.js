@@ -157,6 +157,70 @@ describe('Transport', function() {
       });
     });
 
+    it('should timeout when sending data request', function(done) {
+      client.request({
+        path: '/hello-with-data'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('error', function() {
+          // Ignore errors
+        });
+
+        stream.write('hello ');
+        setTimeout(function() {
+          stream.end('world');
+        }, 100);
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+          ohai: 'yes'
+        });
+
+        stream.setTimeout(50, function() {
+          stream.abort();
+          done();
+        });
+
+        expectData(stream, 'hello world', function() {
+          assert(false);
+        });
+      });
+    });
+
+    it('should not timeout when sending data request', function(done) {
+      client.request({
+        path: '/hello-with-data'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('error', function() {
+          assert(false);
+        });
+
+        stream.write('hello ');
+        setTimeout(function() {
+          stream.end('world');
+        }, 50);
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+          ohai: 'yes'
+        });
+
+        stream.setTimeout(100, function() {
+          assert(false);
+        });
+
+        expectData(stream, 'hello world', function() {
+          stream.setTimeout(0);
+          done();
+        });
+      });
+    });
+
     it('should fail to send data after FIN', function(done) {
       client.request({
         method: 'GET',
