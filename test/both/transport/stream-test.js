@@ -1,66 +1,22 @@
 var assert = require('assert');
 var async = require('async');
-var streamPair = require('stream-pair');
+var fixtures = require('./fixtures');
 
-var transport = require('../../');
+var expectData = fixtures.expectData;
+var everyProtocol = fixtures.everyProtocol;
 
-describe('Transport', function() {
-  var pair = null;
-  var server = null;
-  var client = null;
+var transport = require('../../../');
 
-  function expectData(stream, expected, callback) {
-    var actual = '';
-
-    stream.on('data', function(chunk) {
-      actual += chunk;
-    });
-    stream.on('end', function() {
-      assert.equal(actual, expected);
-      callback();
-    });
-  }
-
-  function protocol(name, version, body) {
-    describe(name + ' (v' + version + ')', function() {
-      beforeEach(function() {
-        pair = streamPair.create();
-
-        server = transport.connection.create(pair, {
-          protocol: name,
-          windowSize: 256,
-          isServer: true
-        });
-        client = transport.connection.create(pair.other, {
-          protocol: name,
-          windowSize: 256,
-          isServer: false
-        });
-
-        client.start(version);
-      });
-
-      body(name, version);
-    });
-  }
-
-  function everyProtocol(body) {
-    protocol('http2', 4, body);
-    protocol('spdy', 2, body);
-    protocol('spdy', 3, body);
-    protocol('spdy', 3.1, body);
-  }
-
+describe('Transport/Stream', function() {
   everyProtocol(function(name, version) {
-    it('should send SETTINGS frame on both ends', function(done) {
-      async.map([ server, client ], function(side, callback) {
-        side.on('frame', function(frame) {
-          if (frame.type !== 'SETTINGS')
-            return;
+    var server;
+    var client;
+    var pair;
 
-          callback();
-        });
-      }, done);
+    beforeEach(function() {
+      server = fixtures.server;
+      client = fixtures.client;
+      pair = fixtures.pair;
     });
 
     it('should send request', function(done) {
@@ -501,156 +457,5 @@ describe('Transport', function() {
         });
       });
     }
-
-    it('should create PUSH_PROMISE', function(done) {
-      client.request({
-        path: '/parent'
-      }, function(err, stream) {
-        assert(!err);
-
-        stream.on('pushPromise', function(push) {
-          assert.equal(push.path, '/push');
-          done();
-        });
-      });
-
-      server.on('stream', function(stream) {
-        assert.equal(stream.path, '/parent');
-
-        stream.respond(200, {});
-        stream.pushPromise({
-          path: '/push',
-          priority: {
-            parent: 0,
-            exclusive: false,
-            weight: 42
-          }
-        }, function(err, stream) {
-          assert(!err);
-        });
-      });
-    });
-
-    it('should fail on disabled PUSH_PROMISE', function(done) {
-      client.request({
-        path: '/parent'
-      }, function(err, stream) {
-        assert(!err);
-
-        stream._spdyState.framer.enablePush(true);
-        stream.pushPromise({
-          path: '/push',
-          priority: {
-            parent: 0,
-            exclusive: false,
-            weight: 42
-          }
-        }, function(err, stream) {
-          assert(!err);
-        });
-
-        client.on('close', function(err) {
-          assert(err);
-          done();
-        });
-      });
-
-      server.on('stream', function(stream) {
-        assert.equal(stream.path, '/parent');
-
-        stream.respond(200, {});
-        stream.on('pushPromise', function() {
-          assert(false);
-        });
-      });
-    });
-
-    it('should get error on disabled PUSH_PROMISE', function(done) {
-      client.request({
-        path: '/parent'
-      }, function(err, stream) {
-        assert(!err);
-
-        stream.pushPromise({
-          path: '/push',
-          priority: {
-            parent: 0,
-            exclusive: false,
-            weight: 42
-          }
-        }, function(err, stream) {
-          assert(err);
-          done();
-        });
-      });
-
-      server.on('stream', function(stream) {
-        assert.equal(stream.path, '/parent');
-
-        stream.respond(200, {});
-
-        stream.on('pushPromise', function() {
-          assert(false);
-        });
-      });
-    });
-
-    it('should ignore request after GOAWAY', function(done) {
-      client.request({
-        path: '/hello-split'
-      }, function(err, stream) {
-        assert(!err);
-
-        client.request({
-          path: '/second'
-        }, function(err, stream) {
-        });
-      });
-
-      var once = false;
-      server.on('stream', function(stream) {
-        assert(!once);
-        once = true;
-
-        // Send GOAWAY
-        server.end();
-      });
-
-      var waiting = 2;
-      server.on('frame', function(frame) {
-        if (frame.type === 'HEADERS' && --waiting === 0)
-          setImmediate(done);
-      });
-    });
-
-    it('should emit `close` after GOAWAY', function(done) {
-      client.request({
-        path: '/hello-split'
-      }, function(err, stream) {
-        assert(!err);
-
-        stream.resume();
-        stream.end();
-      });
-
-      var once = false;
-      server.on('stream', function(stream) {
-        assert(!once);
-        once = true;
-
-        stream.respond(200, {});
-        stream.resume();
-        stream.end();
-
-        pair.destroySoon = done;
-        server.end();
-      });
-    });
-
-    it('should send and receive ping', function(done) {
-      client.ping(function() {
-        server.ping(done);
-      });
-    });
   });
 });
