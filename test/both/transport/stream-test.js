@@ -363,6 +363,23 @@ describe('Transport/Stream', function() {
       });
     });
 
+    it('should destroy request', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('error', function(err) {
+          assert(err);
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.destroy();
+      });
+    });
+
     it('should abort request with pending write', function(done) {
       client.request({
         path: '/hello-split'
