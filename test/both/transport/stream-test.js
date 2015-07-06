@@ -135,12 +135,8 @@ describe('Transport/Stream', function() {
         });
 
         stream.setTimeout(50, function() {
-          stream.abort();
-          done();
-        });
-
-        expectData(stream, 'hello world', function() {
-          assert(false);
+          stream.setTimeout(0);
+          setTimeout(done, 50);
         });
       });
     });
@@ -155,10 +151,16 @@ describe('Transport/Stream', function() {
           assert(false);
         });
 
-        stream.write('hello ');
+        stream.write('hell');
         setTimeout(function() {
-          stream.end('world');
+          stream.write('o ');
         }, 50);
+        setTimeout(function() {
+          stream.write('wor');
+        }, 100);
+        setTimeout(function() {
+          stream.end('ld');
+        }, 150);
       });
 
       server.on('stream', function(stream) {
@@ -172,7 +174,7 @@ describe('Transport/Stream', function() {
 
         expectData(stream, 'hello world', function() {
           stream.setTimeout(0);
-          done();
+          setTimeout(done, 50);
         });
       });
     });

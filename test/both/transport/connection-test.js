@@ -87,5 +87,65 @@ describe('Transport/Connection', function() {
           setImmediate(done);
       });
     });
+
+    it('should timeout when sending request', function(done) {
+      server.setTimeout(50, function() {
+        server.end();
+        setTimeout(done, 50);
+      });
+
+      setTimeout(function() {
+        client.request({
+          path: '/hello-with-data'
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.end('ok');
+        });
+      }, 100);
+
+      server.on('stream', function(stream) {
+        assert(false);
+      });
+    });
+
+    it('should not timeout when sending request', function(done) {
+      server.setTimeout(100, function() {
+        assert(false);
+      });
+
+      setTimeout(function() {
+        client.request({
+          path: '/hello-with-data'
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.end('ok');
+        });
+      }, 50);
+
+      setTimeout(function() {
+        client.request({
+          path: '/hello-with-data'
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.end('ok');
+        });
+      }, 100);
+
+      setTimeout(function() {
+        client.ping(function() {
+          server.end();
+          setTimeout(done, 50);
+        });
+      }, 100);
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {});
+        stream.end();
+        expectData(stream, 'ok', function() {});
+      });
+    });
   });
 });
