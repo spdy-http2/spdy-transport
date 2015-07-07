@@ -54,6 +54,39 @@ describe('Transport/Connection', function() {
       });
     });
 
+    it('should kill late streams on GOAWAY', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.resume();
+        stream.end();
+
+        client.request({
+          path: '/late'
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.on('error', function() {
+            done();
+          });
+        });
+      });
+
+      var once = false;
+      server.on('stream', function(stream) {
+        assert(!once);
+        once = true;
+
+        stream.respond(200, {});
+        stream.resume();
+        stream.end();
+
+        server.end();
+      });
+    });
+
     it('should send and receive ping', function(done) {
       client.ping(function() {
         server.ping(done);
@@ -69,6 +102,9 @@ describe('Transport/Connection', function() {
         client.request({
           path: '/second'
         }, function(err, stream) {
+          stream.on('error', function() {
+            // Ignore
+          });
         });
       });
 
@@ -121,25 +157,27 @@ describe('Transport/Connection', function() {
           assert(!err);
 
           stream.end('ok');
+          setTimeout(second, 50);
         });
       }, 50);
 
-      setTimeout(function() {
+      function second() {
         client.request({
           path: '/hello-with-data'
         }, function(err, stream) {
           assert(!err);
 
           stream.end('ok');
+          setTimeout(third, 50);
         });
-      }, 100);
+      }
 
-      setTimeout(function() {
+      function third() {
         client.ping(function() {
           server.end();
           setTimeout(done, 50);
         });
-      }, 100);
+      }
 
       server.on('stream', function(stream) {
         stream.respond(200, {});

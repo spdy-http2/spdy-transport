@@ -64,6 +64,9 @@ describe('Transport/Push', function() {
           }
         }, function(err, stream) {
           assert(!err);
+          stream.on('error', function(err) {
+            assert(err);
+          });
         });
 
         client.on('close', function(err) {
