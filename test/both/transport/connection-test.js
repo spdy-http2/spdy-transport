@@ -185,5 +185,18 @@ describe('Transport/Connection', function() {
         expectData(stream, 'ok', function() {});
       });
     });
+
+    it('should ignore request without `stream` listener', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('error', function(err) {
+          assert(err);
+          done();
+        });
+      });
+    });
   });
 });
