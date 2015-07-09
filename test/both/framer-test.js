@@ -165,6 +165,54 @@ describe('Framer', function() {
           }, done);
         });
       });
+
+      it('should generate empty frame', function(done) {
+        framer.dataFrame({
+          id: 42,
+          priority: 0,
+          fin: false,
+          data: new Buffer(0)
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'DATA',
+            id: 42,
+            fin: false,
+            data: new Buffer(0)
+          }, done);
+        });
+      });
+
+      it('should split frame in multiple', function(done) {
+        framer.setMaxFrameSize(10);
+        parser.setMaxFrameSize(10);
+
+        var big = new Buffer(32);
+        big.fill('A');
+
+        framer.dataFrame({
+          id: 42,
+          priority: 0,
+          fin: false,
+          data: big
+        }, function(err) {
+          assert(!err);
+
+          var waiting = big.length;
+          var actual = '';
+          parser.on('data', function(frame) {
+            assert.equal(frame.type, 'DATA');
+            actual += frame.data;
+            waiting -= frame.data.length;
+            if (waiting !== 0)
+              return;
+
+            assert.equal(actual, big.toString());
+            done();
+          });
+        });
+      });
     });
 
     describe('HEADERS', function() {
