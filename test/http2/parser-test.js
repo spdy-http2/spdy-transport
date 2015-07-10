@@ -115,7 +115,7 @@ describe('HTTP2 Parser', function() {
           exclusive: false,
           weight: 256
         },
-        fin: false,
+        fin: true,
         writable: true,
         path: '/',
         headers: {

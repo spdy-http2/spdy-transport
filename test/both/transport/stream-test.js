@@ -459,5 +459,23 @@ describe('Transport/Stream', function() {
         });
       });
     }
+
+    it('should send fin-request', function(done) {
+      client._spdyState.framer.requestFrame({
+        id: 1,
+        method: 'GET',
+        path: '/',
+        priority: null,
+        headers: {},
+        fin: true
+      }, function(err) {
+        assert(!err);
+      });
+
+      server.on('stream', function(stream) {
+        stream.once('end', done);
+        stream.resume();
+      });
+    });
   });
 });

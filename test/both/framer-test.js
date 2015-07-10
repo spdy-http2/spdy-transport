@@ -292,6 +292,42 @@ describe('Framer', function() {
         });
       });
 
+      it('should generate fin request frame', function(done) {
+        framer.requestFrame({
+          id: 1,
+          fin: true,
+          path: '/',
+          host: 'localhost',
+          method: 'GET',
+          headers: {
+            a: 'b'
+          }
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'HEADERS',
+            id: 1,
+            fin: true,
+            writable: true,
+            priority: {
+              weight: 16,
+              parent: 0,
+              exclusive: false
+            },
+            path: '/',
+            headers: {
+              ':authority': 'localhost',
+              ':path': '/',
+              ':scheme': 'https',
+              ':method': 'GET',
+
+              a: 'b'
+            }
+          }, done);
+        });
+      });
+
       it('should generate response frame', function(done) {
         framer.responseFrame({
           id: 1,
