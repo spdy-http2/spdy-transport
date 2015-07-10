@@ -48,6 +48,34 @@ describe('Transport/Push', function() {
       });
     });
 
+    it('should ignore PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+          stream.once('error', function(err) {
+            assert(err);
+            done();
+          });
+        });
+      });
+    });
+
     it('should fail on disabled PUSH_PROMISE', function(done) {
       client.request({
         path: '/parent'
