@@ -95,6 +95,18 @@ describe('Framer', function() {
           }, done);
         });
       });
+
+      if (version >= 4) {
+        it('should generate ACK frame', function(done) {
+          framer.ackSettingsFrame(function(err) {
+            assert(!err);
+
+            expect({
+              type: 'ACK_SETTINGS'
+            }, done);
+          });
+        });
+      }
     });
 
     describe('WINDOW_UPDATE', function() {
