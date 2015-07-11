@@ -235,7 +235,8 @@ describe('Framer', function() {
           host: 'localhost',
           method: 'GET',
           headers: {
-            a: 'b'
+            a: 'b',
+            host: 'localhost'
           }
         }, function(err) {
           assert(!err);
