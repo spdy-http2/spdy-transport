@@ -510,5 +510,45 @@ describe('Transport/Stream', function() {
         assert(sent);
       });
     });
+
+    it('should coalesce headers in reserved stream', function(done) {
+      var sent = false;
+      var received = false;
+
+      client.reserveStream({
+        path: '/hello',
+        headers: {
+          normal: 'yes'
+        }
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.sendHeaders({ 'not-trailer': 'yay' });
+
+        setTimeout(function() {
+          stream.send(function(err) {
+            sent = true;
+            assert(!err);
+          });
+        }, 50);
+
+        stream.on('response', function(code, headers) {
+          assert(received);
+
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.headers.normal, 'yes')
+        assert.equal(stream.headers['not-trailer'], 'yay')
+        stream.respond(200, {
+        });
+        received = true;
+
+        assert(sent);
+      });
+    });
   });
 });
