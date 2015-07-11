@@ -550,5 +550,25 @@ describe('Transport/Stream', function() {
         assert(sent);
       });
     });
+
+    it('should reserve and end request', function(done) {
+      client.reserveStream({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        stream.on('error', function() {
+          // Server will cancel the stream
+        });
+        stream.end();
+      });
+
+      server.on('frame', function(frame) {
+        if (frame.type !== 'HEADERS')
+          return;
+
+        assert.equal(frame.fin, true);
+        done();
+      });
+    });
   });
 });
