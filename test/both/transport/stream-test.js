@@ -477,5 +477,38 @@ describe('Transport/Stream', function() {
         stream.resume();
       });
     });
+
+    it('should reserve and send request', function(done) {
+      var sent = false;
+      var received = false;
+
+      client.reserveStream({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        setTimeout(function() {
+          stream.send(function(err) {
+            sent = true;
+            assert(!err);
+          });
+        }, 50);
+
+        stream.on('response', function(code, headers) {
+          assert(received);
+
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {
+        });
+        received = true;
+
+        assert(sent);
+      });
+    });
   });
 });
