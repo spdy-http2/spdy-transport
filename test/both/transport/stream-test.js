@@ -60,7 +60,7 @@ describe('Transport/Stream', function() {
 
     it('should send data on request', function(done) {
       client.request({
-        method: 'GET',
+        method: 'POST',
         path: '/hello-with-data',
         headers: {
           a: 'b',
@@ -115,6 +115,7 @@ describe('Transport/Stream', function() {
 
     it('should timeout when sending data request', function(done) {
       client.request({
+        method: 'POST',
         path: '/hello-with-data'
       }, function(err, stream) {
         assert(!err);
@@ -143,6 +144,7 @@ describe('Transport/Stream', function() {
 
     it('should not timeout when sending data request', function(done) {
       client.request({
+        method: 'POST',
         path: '/hello-with-data'
       }, function(err, stream) {
         assert(!err);
@@ -181,7 +183,7 @@ describe('Transport/Stream', function() {
 
     it('should fail to send data after FIN', function(done) {
       client.request({
-        method: 'GET',
+        method: 'POST',
         path: '/hello-with-data',
         headers: {
           a: 'b',
@@ -250,7 +252,7 @@ describe('Transport/Stream', function() {
       b.fill('b');
 
       client.request({
-        method: 'GET',
+        method: 'POST',
         path: '/hello-flow',
         headers: {
           a: 'b',
@@ -323,6 +325,7 @@ describe('Transport/Stream', function() {
 
     it('should emit trailing headers', function(done) {
       client.request({
+        method: 'POST',
         path: '/hello-split'
       }, function(err, stream) {
         assert(!err);
@@ -553,6 +556,28 @@ describe('Transport/Stream', function() {
 
     it('should reserve and end request', function(done) {
       client.reserveStream({
+        method: 'PUT',
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        stream.on('error', function() {
+          // Server will cancel the stream
+        });
+        stream.end();
+      });
+
+      server.on('frame', function(frame) {
+        if (frame.type !== 'HEADERS')
+          return;
+
+        assert.equal(frame.fin, true);
+        done();
+      });
+    });
+
+    it('should auto-end GET request', function(done) {
+      client.reserveStream({
+        method: 'GET',
         path: '/hello'
       }, function(err, stream) {
         assert(!err);
