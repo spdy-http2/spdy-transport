@@ -595,5 +595,20 @@ describe('Transport/Stream', function() {
         done();
       });
     });
+
+    it('should send reserved request on write', function(done) {
+      client.reserveStream({
+        method: 'POST',
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        stream.end('hello');
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.method, 'POST');
+        expectData(stream, 'hello', done);
+      });
+    });
   });
 });
