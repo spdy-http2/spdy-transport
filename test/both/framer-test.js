@@ -264,6 +264,43 @@ describe('Framer', function() {
         });
       });
 
+      it('should skip internal headers', function(done) {
+        framer.requestFrame({
+          id: 1,
+          path: '/',
+          host: 'localhost',
+          method: 'GET',
+          headers: {
+            a: 'b',
+            host: 'localhost',
+            ':method': 'oopsie'
+          }
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'HEADERS',
+            id: 1,
+            fin: false,
+            writable: true,
+            priority: {
+              weight: 16,
+              parent: 0,
+              exclusive: false
+            },
+            path: '/',
+            headers: {
+              ':authority': 'localhost',
+              ':path': '/',
+              ':scheme': 'https',
+              ':method': 'GET',
+
+              a: 'b'
+            }
+          }, done);
+        });
+      });
+
       it('should generate priority request frame', function(done) {
         framer.requestFrame({
           id: 1,
