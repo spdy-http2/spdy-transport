@@ -108,4 +108,12 @@ describe('Frame Scheduler', function() {
       done();
     }));
   });
+
+  it('should synchronously dump data', function() {
+    scheduler.write(chunk(0, false, [ 'hello' ]));
+
+    scheduler.dump();
+
+    assert.equal(scheduler.read() + '', 'hello');
+  });
 });

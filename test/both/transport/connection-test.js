@@ -49,7 +49,14 @@ describe('Transport/Connection', function() {
         stream.resume();
         stream.end();
 
-        pair.destroySoon = done;
+        var waiting = 2;
+        function next() {
+          if (--waiting === 0)
+            done();
+        }
+
+        pair.destroySoon = next;
+        server.once('close', next);
         server.end();
       });
     });
