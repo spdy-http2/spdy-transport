@@ -610,5 +610,26 @@ describe('Transport/Stream', function() {
         expectData(stream, 'hello', done);
       });
     });
+
+    it('should not send extra frames after FIN', function(done) {
+      client.request({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.resume();
+        stream.end(function() {
+          stream.sendHeaders({}, function(err) {
+            assert(err);
+            done();
+          });
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.resume();
+      });
+    });
   });
 });
