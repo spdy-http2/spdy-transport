@@ -160,6 +160,19 @@ describe('Transport/Connection', function() {
       });
     });
 
+    it('should return Stream after GOAWAY', function(done) {
+      client.end(function() {
+        var stream = client.request({
+          path: '/hello-split'
+        });
+        assert(stream);
+
+        stream.once('error', function() {
+          done();
+        });
+      });
+    });
+
     it('should timeout when sending request', function(done) {
       server.setTimeout(50, function() {
         server.end();
@@ -170,9 +183,7 @@ describe('Transport/Connection', function() {
         client.request({
           path: '/hello-with-data'
         }, function(err, stream) {
-          assert(!err);
-
-          stream.end('ok');
+          assert(err);
         });
       }, 100);
 
