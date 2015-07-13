@@ -48,6 +48,37 @@ describe('Transport/Push', function() {
       });
     });
 
+    it('should cork PUSH_PROMISE on write', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('pushPromise', function(push) {
+          assert.equal(push.path, '/push');
+          expectData(push, 'ok', done);
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        var push = stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+        });
+
+        push.end('ok');
+      });
+    });
+
     it('should emit `close` on PUSH_PROMISE', function(done) {
       client.request({
         path: '/parent'
