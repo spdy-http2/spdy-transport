@@ -234,5 +234,47 @@ describe('Transport/Connection', function() {
         });
       });
     });
+
+    it('should ignore HEADERS frame after FIN', function(done) {
+      function sendHeaders() {
+        client._spdyState.framer.requestFrame({
+          id: 1,
+          method: 'GET',
+          path: '/',
+          priority: null,
+          headers: {},
+          fin: true
+        }, function(err) {
+          assert(!err);
+        });
+      }
+
+      client.request({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.resume();
+        stream.once('end', function() {
+          stream.end(sendHeaders);
+        });
+      });
+
+      var incoming = 0;
+      server.on('stream', function(stream) {
+        incoming++;
+        assert(incoming <= 1);
+
+        stream.resume();
+        stream.end();
+      });
+
+      var waiting = 2;
+      server.on('frame', function(frame) {
+        if (frame.type === 'HEADERS' && --waiting === 0)
+          process.nextTick(done);
+      });
+    });
   });
 });
