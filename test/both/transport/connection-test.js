@@ -61,6 +61,35 @@ describe('Transport/Connection', function() {
       });
     });
 
+    it('should dump data on GOAWAY', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.resume();
+        stream.end();
+      });
+
+      var once = false;
+      server.on('stream', function(stream) {
+        assert(!once);
+        once = true;
+
+        stream.respond(200, {});
+        stream.resume();
+        stream.end();
+
+        pair.destroySoon = function() {
+          pair.end();
+          server.ping();
+
+          setImmediate(done);
+        };
+        server.end();
+      });
+    });
+
     it('should kill late streams on GOAWAY', function(done) {
       client.request({
         path: '/hello-split'
