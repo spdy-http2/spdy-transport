@@ -212,5 +212,41 @@ describe('Transport/Push', function() {
         });
       });
     });
+
+    it('should not error on extra PRIORITY frame', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('pushPromise', function(push) {
+          // .abort() does this only on next tick
+          push.emit('close');
+
+          stream.end('ok');
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+          stream.on('error', function() {
+            assert(false);
+          });
+        });
+
+        expectData(stream, 'ok', done);
+      });
+    });
   });
 });
