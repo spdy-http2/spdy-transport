@@ -84,7 +84,7 @@ describe('Transport/Connection', function() {
           pair.end();
           server.ping();
 
-          setImmediate(done);
+          setTimeout(done, 10);
         };
         server.end();
       });
@@ -156,7 +156,7 @@ describe('Transport/Connection', function() {
       var waiting = 2;
       server.on('frame', function(frame) {
         if (frame.type === 'HEADERS' && --waiting === 0)
-          setImmediate(done);
+          setTimeout(done, 10);
       });
     });
 

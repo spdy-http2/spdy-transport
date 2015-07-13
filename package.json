@@ -18,6 +18,7 @@
     "debug": "^2.2.0",
     "hpack.js": "^2.1.2",
     "obuf": "^1.1.0",
+    "readable-stream": "^2.0.1",
     "wbuf": "^1.4.0"
   },
   "devDependencies": {

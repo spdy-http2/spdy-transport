@@ -231,8 +231,9 @@ describe('HTTP2 Parser', function() {
       var first = '00000b010000000001' + hello;
       var second = '00000d090000000001' + how;
 
-      var msg = first + new Array(20000).join(second);
+      var msg = first + new Array(200).join(second);
 
+      parser.maxHeaderListSize = 1000;
       fail(msg, 'PROTOCOL_ERROR', /list is too large/i, done);
     });
   });
