@@ -443,6 +443,31 @@ describe('Transport/Stream', function() {
       });
     });
 
+    it('should abort request only once', function(done) {
+      client.request({
+        path: '/hello-split'
+      }, function(err, stream) {
+        assert(!err);
+
+        var once = false;
+        stream.on('error', function(err) {
+          assert(!once);
+          once = true;
+
+          assert(err);
+        });
+      });
+
+      client.on('close', function() {
+        done();
+      });
+
+      server.on('stream', function(stream) {
+        stream.abort();
+        server.end();
+      });
+    });
+
     it('should create prioritized stream', function(done) {
       client.request({
         path: '/path',
