@@ -113,6 +113,32 @@ describe('Transport/Stream', function() {
       });
     });
 
+    it('should send HEADERS right before FIN', function(done) {
+      client.request({
+        method: 'POST',
+        path: '/hello-with-data'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.sendHeaders({ a: 'b' });
+        stream.end();
+      });
+
+      server.on('stream', function(stream) {
+        var gotHeaders = false;
+        stream.on('headers', function(headers) {
+          gotHeaders = true;
+          assert.equal(headers.a, 'b');
+        });
+
+        stream.resume();
+        stream.on('end', function() {
+          assert(gotHeaders);
+          done();
+        });
+      });
+    });
+
     it('should timeout when sending data request', function(done) {
       client.request({
         method: 'POST',
