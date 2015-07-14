@@ -48,6 +48,41 @@ describe('Transport/Push', function() {
       });
     });
 
+    it('should create PUSH_PROMISE and end parent req', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.resume();
+        stream.end();
+        stream.on('pushPromise', function(push) {
+          assert.equal(push.path, '/push');
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.resume();
+        stream.on('end', function() {
+          stream.pushPromise({
+            path: '/push',
+            priority: {
+              parent: 0,
+              exclusive: false,
+              weight: 42
+            }
+          }, function(err, stream) {
+            assert(!err);
+          });
+          stream.end();
+        });
+      });
+    });
+
     it('should cork PUSH_PROMISE on write', function(done) {
       client.request({
         path: '/parent'
