@@ -677,6 +677,21 @@ describe('Framer', function() {
           }, done);
         });
       });
+
+      it('should generate OK frame', function(done) {
+        framer.goawayFrame({
+          lastId: 42,
+          code: 'OK'
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'GOAWAY',
+            lastId: 42,
+            code: 'OK'
+          }, done);
+        });
+      });
     });
   });
 });
