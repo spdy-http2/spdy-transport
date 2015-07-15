@@ -287,5 +287,23 @@ describe('Transport/Connection', function() {
           process.nextTick(done);
       });
     });
+
+    it('should use last received id when killing streams', function(done) {
+      var waiting = 2;
+      function next() {
+        if (--waiting === 0)
+          return done();
+      }
+      client.once('stream', next);
+      server.once('stream', next);
+
+      server.request({
+        path: '/hello'
+      }, function() {
+        client.request({
+          path: '/hello'
+        });
+      });
+    });
   });
 });
