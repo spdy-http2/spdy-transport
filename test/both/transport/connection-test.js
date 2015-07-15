@@ -305,5 +305,16 @@ describe('Transport/Connection', function() {
         });
       });
     });
+
+    it('should kill stream on wrong id', function(done) {
+      client._spdyState.stream.nextId = 2;
+
+      var stream = client.request({
+        path: '/hello'
+      });
+      stream.once('error', function(err) {
+        done();
+      });
+    });
   });
 });
