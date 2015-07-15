@@ -27,7 +27,42 @@ describe('Transport/Push', function() {
 
         stream.on('pushPromise', function(push) {
           assert.equal(push.path, '/push');
-          done();
+          push.on('response', function(status, headers) {
+            assert.equal(status, 201);
+            done();
+          });
+        });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.pushPromise({
+          path: '/push',
+          status: 201,
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(!err);
+        });
+      });
+    });
+
+    it('should send HEADERS on PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream.on('pushPromise', function(push) {
+          push.on('headers', function(headers) {
+            assert.deepEqual(headers, { a: 'b' });
+            done();
+          });
         });
       });
 
@@ -44,6 +79,8 @@ describe('Transport/Push', function() {
           }
         }, function(err, stream) {
           assert(!err);
+
+          stream.sendHeaders({ a: 'b' });
         });
       });
     });
@@ -255,10 +292,12 @@ describe('Transport/Push', function() {
         assert(!err);
 
         stream.on('pushPromise', function(push) {
-          // .abort() does this only on next tick
-          push.emit('close');
+          push.on('response', function() {
+            // .abort() does this only on next tick
+            push.emit('close');
 
-          stream.end('ok');
+            stream.end('ok');
+          });
         });
       });
 

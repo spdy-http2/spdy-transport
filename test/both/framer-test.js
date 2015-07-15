@@ -426,7 +426,7 @@ describe('Framer', function() {
         }, function(err) {
           assert(!err);
 
-          expect({
+          expect([ {
             type: 'PUSH_PROMISE',
             id: 4,
             promisedId: 41,
@@ -437,11 +437,24 @@ describe('Framer', function() {
               ':path': '/',
               ':scheme': 'https',
               ':method': 'GET',
-              ':status': '200',
 
               a: 'b'
             }
-          }, done);
+          }, {
+            type: 'HEADERS',
+            id: 41,
+            priority: {
+              exclusive: false,
+              parent: 0,
+              weight: 16
+            },
+            writable: true,
+            path: undefined,
+            fin: false,
+            headers: {
+              ':status': '200'
+            }
+          } ], done);
         });
       });
 
@@ -475,17 +488,22 @@ describe('Framer', function() {
               ':path': '/',
               ':scheme': 'https',
               ':method': 'GET',
-              ':status': '200',
 
               a: 'b'
             }
           }, {
-            type: 'PRIORITY',
+            type: 'HEADERS',
             id: 41,
             priority: {
               exclusive: false,
               parent: 0,
               weight: 1
+            },
+            writable: true,
+            path: undefined,
+            fin: false,
+            headers: {
+              ':status': '200'
             }
           } ], done);
         });
