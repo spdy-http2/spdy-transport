@@ -4,10 +4,6 @@
 
 SPDY/HTTP2 generic transport implementation.
 
-## WIP
-
-**NOTE: THIS IS STILL WORK IN PROGRESS. EVERYTHING MAY BE BROKEN AT THIS POINT**
-
 ## Usage
 
 ```javascript
