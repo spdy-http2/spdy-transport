@@ -436,7 +436,7 @@ describe('SPDY Parser (v3)', function() {
                  '001c00000004000e00f1ff00000001000000016100000001' +
                  '62000000ffff';
 
-      pass(data, [{
+      pass(data, [ {
         fin: false,
         headers: {
           a: 'b'
@@ -464,7 +464,7 @@ describe('SPDY Parser (v3)', function() {
         },
         type: 'HEADERS',
         writable: true
-      }], done)
+      } ], done)
     });
   });
 
