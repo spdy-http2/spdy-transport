@@ -17,10 +17,19 @@ describe('SPDY Parser (v3)', function() {
   function pass(data, expected, done) {
     parser.write(new Buffer(data, 'hex'));
 
-    parser.once('data', function(frame) {
-      assert.deepEqual(frame, expected);
-      assert.equal(parser.buffer.size, 0);
-      done();
+    if (!Array.isArray(expected))
+      expected = [ expected ];
+
+    parser.on('data', function(frame) {
+      if (expected.length === 0)
+        return;
+
+      assert.deepEqual(frame, expected.shift());
+
+      if (expected.length === 0) {
+        assert.equal(parser.buffer.size, 0);
+        done();
+      }
     });
   }
 
@@ -419,6 +428,43 @@ describe('SPDY Parser (v3)', function() {
           writable: true
         }, done)
       });
+    });
+
+    it('should parse two consecutive frames', function(done) {
+      var data = '8003000800000022000000043830e3c6a7c2000e00f1ff00' +
+                 '00000100000001610000000162000000ffff800300080000' +
+                 '001c00000004000e00f1ff00000001000000016100000001' +
+                 '62000000ffff';
+
+      pass(data, [{
+        fin: false,
+        headers: {
+          a: 'b'
+        },
+        id: 4,
+        path: undefined,
+        priority: {
+          exclusive: false,
+          parent: 0,
+          weight: 16
+        },
+        type: 'HEADERS',
+        writable: true
+      }, {
+        fin: false,
+        headers: {
+          a: 'b'
+        },
+        id: 4,
+        path: undefined,
+        priority: {
+          exclusive: false,
+          parent: 0,
+          weight: 16
+        },
+        type: 'HEADERS',
+        writable: true
+      }], done)
     });
   });
 
