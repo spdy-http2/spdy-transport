@@ -197,6 +197,25 @@ describe('SPDY Parser (v3)', function() {
       }, done);
     });
 
+    it('should parse partial frame with no flags', function(done) {
+      var hexFrame = '000000010000001157726974696e6720746f207374726561'
+
+      pass(hexFrame, {
+        data: new Buffer('57726974696e6720746f207374726561', 'hex'),
+        fin: false,
+        id: 1,
+        type: 'DATA'
+      }, function() {
+        assert.equal(parser.waiting, 1);
+        pass('ff', {
+          data: new Buffer('ff', 'hex'),
+          fin: false,
+          id: 1,
+          type: 'DATA'
+        }, done);
+      });
+    });
+
     it('should parse frame with FLAG_FIN', function(done) {
       var hexFrame = '000000010100001157726974696e6720746f2073747265616d'
 
@@ -206,6 +225,25 @@ describe('SPDY Parser (v3)', function() {
         id: 1,
         type: 'DATA'
       }, done);
+    });
+
+    it('should parse partial frame with FLAG_FIN', function(done) {
+      var hexFrame = '000000010100001157726974696e6720746f207374726561'
+
+      pass(hexFrame, {
+        data: new Buffer('57726974696e6720746f207374726561', 'hex'),
+        fin: false,
+        id: 1,
+        type: 'DATA'
+      }, function() {
+        assert.equal(parser.waiting, 1);
+        pass('ff', {
+          data: new Buffer('ff', 'hex'),
+          fin: true,
+          id: 1,
+          type: 'DATA'
+        }, done);
+      });
     });
   });
 

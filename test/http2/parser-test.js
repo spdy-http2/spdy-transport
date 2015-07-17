@@ -11,10 +11,10 @@ describe('HTTP2 Parser', function() {
     parser = http2.parser.create({});
     var comp = pool.get();
     parser.setCompression(comp);
+    parser.skipPreface();
   });
 
   function pass(data, expected, done) {
-    parser.skipPreface();
     parser.write(new Buffer(data, 'hex'));
 
     parser.once('data', function(frame) {
@@ -25,7 +25,6 @@ describe('HTTP2 Parser', function() {
   }
 
   function fail(data, code, re, done) {
-    parser.skipPreface();
     parser.write(new Buffer(data, 'hex'), function(err) {
       assert(err);
       assert(err instanceof transport.protocol.base.utils.ProtocolError);
@@ -273,6 +272,23 @@ describe('HTTP2 Parser', function() {
       }, done);
     });
 
+    it('should parse partial frame', function(done) {
+      pass('000004000000000001abbade', {
+        type: 'DATA',
+        id: 1,
+        fin: false,
+        data: new Buffer('abbade', 'hex')
+      }, function() {
+        assert.equal(parser.waiting, 1);
+        pass('ff', {
+          type: 'DATA',
+          id: 1,
+          fin: false,
+          data: new Buffer('ff', 'hex')
+        }, done);
+      });
+    });
+
     it('should parse END_STREAM frame', function(done) {
       pass('000004000100000001deadbeef', {
         type: 'DATA',
@@ -282,6 +298,23 @@ describe('HTTP2 Parser', function() {
       }, done);
     });
 
+    it('should parse partial END_STREAM frame', function(done) {
+      pass('000004000100000001abbade', {
+        type: 'DATA',
+        id: 1,
+        fin: false,
+        data: new Buffer('abbade', 'hex')
+      }, function() {
+        assert.equal(parser.waiting, 1);
+        pass('ff', {
+          type: 'DATA',
+          id: 1,
+          fin: true,
+          data: new Buffer('ff', 'hex')
+        }, done);
+      });
+    });
+
     it('should parse padded frame', function(done) {
       pass('0000070008000000010212345678ffff', {
         type: 'DATA',
@@ -289,6 +322,18 @@ describe('HTTP2 Parser', function() {
         fin: false,
         data: new Buffer('12345678', 'hex')
       }, done);
+    });
+
+    it('should not parse partial padded frame', function(done) {
+      pass('0000070008000000010212345678ff', {
+        type: 'DATA',
+        id: 1,
+        fin: false,
+        data: new Buffer('12345678', 'hex')
+      }, function() {
+        assert(false);
+      });
+      setTimeout(done, 50);
     });
 
     it('should fail on incorrectly padded frame', function(done) {
