@@ -129,8 +129,10 @@ describe('HTTP2 Parser', function() {
           'accept-encoding': 'gzip, deflate, sdch',
           'accept-language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
           'cache-control': 'max-age=0',
-          cookie: '__utmz=96992031.1418653936.1.1.utmcsr=(direct)|' +
-                   'utmccn=(direct)|utmcmd=(none)',
+          cookie: '__utma=96992031.1688179242.1418653936.' +
+                  '1431769072.1433090381.7, ' +
+                  '__utmz=96992031.1418653936.1.1.utmcsr=(direct)|' +
+                  'utmccn=(direct)|utmcmd=(none)',
           dnt: '1',
           'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) ' +
                         'AppleWebKit/537.36 (KHTML, like Gecko) ' +

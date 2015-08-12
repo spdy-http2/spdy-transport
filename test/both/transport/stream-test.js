@@ -682,5 +682,36 @@ describe('Transport/Stream', function() {
         stream.resume();
       });
     });
+
+    it('should send request with Array header value', function(done) {
+
+      var sent = false;
+      var received = false;
+
+      client.request({
+        method: 'GET',
+        path: '/hello',
+        headers: {
+          cookie: [ 'd', 'e' ]
+        }
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.on('response', function(code, headers) {
+          assert(received);
+          done();
+        });
+      });
+
+      server.on('stream', function(stream) {
+        stream.respond(200, {});
+
+        received = true;
+
+        assert(sent);
+        assert.equal(stream.headers.cookie, 'd, e');
+      });
+    });
   });
 });
