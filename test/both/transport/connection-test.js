@@ -260,6 +260,7 @@ describe('Transport/Connection', function() {
         });
       }
 
+      var sent;
       client.request({
         path: '/hello'
       }, function(err, stream) {
@@ -314,6 +315,40 @@ describe('Transport/Connection', function() {
       });
       stream.once('error', function(err) {
         done();
+      });
+    });
+
+    it('should handle SETTINGS', function(done) {
+      client._spdyState.framer.settingsFrame({
+        max_frame_size: 100,
+        max_header_list_size: 1000,
+        header_table_size: 32,
+        enable_push: true
+      }, function(err) {
+        assert(!err);
+      });
+
+      var sent;
+      client.request({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.on('data', function(chunk) {
+          assert(chunk.length <= 100 || version < 4);
+        });
+
+        stream.once('end', done);
+      });
+
+      var incoming = 0;
+      server.on('stream', function(stream) {
+        incoming++;
+        assert(incoming <= 1);
+
+        stream.resume();
+        stream.end(new Buffer(1024));
       });
     });
   });
