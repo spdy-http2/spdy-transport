@@ -5,10 +5,18 @@ var spdy = transport.protocol.spdy;
 
 describe('SPDY Parser (v3)', function() {
   var parser;
+  var window;
 
   beforeEach(function() {
+    window = new transport.Window({
+      id: 0,
+      isServer: true,
+      recv: { size: 1024 * 1024 },
+      send: { size: 1024 * 1024 }
+
+    });
     var pool = spdy.compressionPool.create();
-    parser = spdy.parser.create({});
+    parser = spdy.parser.create({ window: window });
     var comp = pool.get('3.1');
     parser.setCompression(comp);
     parser.skipPreface();
@@ -212,7 +220,10 @@ describe('SPDY Parser (v3)', function() {
           fin: false,
           id: 1,
           type: 'DATA'
-        }, done);
+        }, function() {
+          assert.equal(window.recv.current, 1048559);
+          done();
+        });
       });
     });
 

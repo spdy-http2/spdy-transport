@@ -5,10 +5,20 @@ var http2 = transport.protocol.http2;
 
 describe('HTTP2 Parser', function() {
   var parser;
+  var window
 
   beforeEach(function() {
+    window = new transport.Window({
+      id: 0,
+      isServer: true,
+      recv: { size: 1024 * 1024 },
+      send: { size: 1024 * 1024 }
+    });
+
     var pool = http2.compressionPool.create();
-    parser = http2.parser.create({});
+    parser = http2.parser.create({
+      window: window
+    });
     var comp = pool.get();
     parser.setCompression(comp);
     parser.skipPreface();
@@ -287,7 +297,10 @@ describe('HTTP2 Parser', function() {
           id: 1,
           fin: false,
           data: new Buffer('ff', 'hex')
-        }, done);
+        }, function() {
+          assert.equal(window.recv.current, 1048572);
+          done();
+        });
       });
     });
 
