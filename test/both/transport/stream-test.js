@@ -692,6 +692,7 @@ describe('Transport/Stream', function() {
         method: 'GET',
         path: '/hello',
         headers: {
+          other: [ 'b', 'c' ],
           cookie: [ 'd', 'e' ]
         }
       }, function(err, stream) {
@@ -710,7 +711,10 @@ describe('Transport/Stream', function() {
         received = true;
 
         assert(sent);
-        assert.equal(stream.headers.cookie, 'd, e');
+        assert.equal(stream.headers.other, 'b, c');
+
+        // NOTE: Browser sends them this way
+        assert.equal(stream.headers.cookie, 'd; e');
       });
     });
   });
