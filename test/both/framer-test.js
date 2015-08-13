@@ -12,8 +12,23 @@ describe('Framer', function() {
         var proto = transport.protocol[name];
 
         var pool = proto.compressionPool.create();
-        framer = proto.framer.create({});
-        parser = proto.parser.create({ isServer: true });
+        framer = proto.framer.create({
+          window: new transport.Window({
+            id: 0,
+            isServer: false,
+            recv: { size: 1024 * 1024 },
+            send: { size: 1024 * 1024 }
+          })
+        });
+        parser = proto.parser.create({
+          isServer: true,
+          window: new transport.Window({
+            id: 0,
+            isServer: true,
+            recv: { size: 1024 * 1024 },
+            send: { size: 1024 * 1024 }
+          })
+        });
 
         var comp = pool.get(version);
         framer.setCompression(comp);
@@ -225,6 +240,29 @@ describe('Framer', function() {
           });
         });
       });
+
+      it('should update window on both sides', function(done) {
+        framer.dataFrame({
+          id: 42,
+          priority: 0,
+          fin: false,
+          data: new Buffer('hello')
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'DATA',
+            id: 42,
+            fin: false,
+            data: new Buffer('hello')
+          }, function() {
+            assert.equal(framer.window.send.current,
+                         parser.window.recv.current);
+            assert.equal(framer.window.send.current, 1024 * 1024 - 5);
+            done();
+          });
+        });
+      });
     });
 
     describe('HEADERS', function() {
@@ -407,6 +445,47 @@ describe('Framer', function() {
               a: 'b'
             }
           }, done);
+        });
+      });
+
+      it('should not update window on both sides', function(done) {
+        framer.requestFrame({
+          id: 1,
+          fin: true,
+          path: '/',
+          host: 'localhost',
+          method: 'GET',
+          headers: {
+            a: 'b'
+          }
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'HEADERS',
+            id: 1,
+            fin: true,
+            writable: true,
+            priority: {
+              weight: 16,
+              parent: 0,
+              exclusive: false
+            },
+            path: '/',
+            headers: {
+              ':authority': 'localhost',
+              ':path': '/',
+              ':scheme': 'https',
+              ':method': 'GET',
+
+              a: 'b'
+            }
+          }, function() {
+            assert.equal(framer.window.send.current,
+                         parser.window.recv.current);
+            assert.equal(framer.window.send.current, 1024 * 1024);
+            done();
+          });
         });
       });
     });
