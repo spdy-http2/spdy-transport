@@ -37,7 +37,7 @@ describe('Transport/Stream', function() {
         stream.on('response', function(code, headers) {
           assert(received);
 
-          assert.equal(code, 200);
+          assert.strictEqual(code, 200);
           assert.equal(headers.ohai, 'yes');
           done();
         });
