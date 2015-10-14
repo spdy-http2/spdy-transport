@@ -27,6 +27,7 @@ describe('Transport/Push', function() {
 
         stream.on('pushPromise', function(push) {
           assert.equal(push.path, '/push');
+          assert.equal(client.getCounter('push'), 1);
           push.on('response', function(status, headers) {
             assert.equal(status, 201);
             done();
