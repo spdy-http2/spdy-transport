@@ -274,7 +274,10 @@ describe('Framer', function() {
           method: 'GET',
           headers: {
             a: 'b',
-            host: 'localhost'
+            host: 'localhost',
+
+            // Should be removed
+            connection: 'keep-alive'
           }
         }, function(err) {
           assert(!err);
