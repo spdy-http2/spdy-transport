@@ -533,8 +533,8 @@ describe('HTTP2 Parser', function() {
   describe('X_FORWARDED_FOR', function() {
     it('should parse general frame', function(done) {
       pass('000004de00000000006f686169', {
-        type: 'X_FORWARDED',
-        host: new Buffer('ohai')
+        type: 'X_FORWARDED_FOR',
+        host: 'ohai'
       }, done);
     });
   });

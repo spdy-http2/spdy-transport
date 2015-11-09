@@ -351,5 +351,27 @@ describe('Transport/Connection', function() {
         stream.end(new Buffer(1024));
       });
     });
+
+    it('should send X_FORWARDED_FOR', function(done) {
+      client.sendXForwardedFor('1.2.3.4');
+
+      var sent;
+      client.request({
+        path: '/hello'
+      }, function(err, stream) {
+        assert(!err);
+        sent = true;
+
+        stream.resume();
+        stream.once('end', done);
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(server.getXForwardedFor(), '1.2.3.4');
+
+        stream.resume();
+        stream.end();
+      });
+    });
   });
 });

@@ -793,5 +793,20 @@ describe('Framer', function() {
         });
       });
     });
+
+    describe('X_FORWARDED_FOR', function() {
+      it('should generate regular frame', function(done) {
+        framer.xForwardedFor({
+          host: 'ok'
+        }, function(err) {
+          assert(!err);
+
+          expect({
+            type: 'X_FORWARDED_FOR',
+            host: 'ok'
+          }, done);
+        });
+      });
+    });
   });
 });
