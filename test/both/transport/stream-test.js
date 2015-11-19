@@ -381,7 +381,7 @@ describe('Transport/Stream', function() {
       }, function(err, stream) {
         assert(!err);
 
-        stream.on('error', function(err) {
+        stream.on('close', function(err) {
           assert(err);
           done();
         });
@@ -402,7 +402,7 @@ describe('Transport/Stream', function() {
           assert(false, 'got data on aborted stream');
         });
 
-        stream.on('error', function(err) {
+        stream.on('close', function(err) {
           assert(err);
         });
       });
@@ -450,7 +450,7 @@ describe('Transport/Stream', function() {
         assert(!err);
 
         var once = false;
-        stream.on('error', function(err) {
+        stream.on('close', function(err) {
           assert(!once);
           once = true;
 
@@ -611,9 +611,6 @@ describe('Transport/Stream', function() {
         path: '/hello'
       }, function(err, stream) {
         assert(!err);
-        stream.on('error', function() {
-          // Server will cancel the stream
-        });
         stream.end();
       });
 
@@ -632,9 +629,6 @@ describe('Transport/Stream', function() {
         path: '/hello'
       }, function(err, stream) {
         assert(!err);
-        stream.on('error', function() {
-          // Server will cancel the stream
-        });
         stream.end();
       });
 

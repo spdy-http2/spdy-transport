@@ -239,7 +239,7 @@ describe('Transport/Connection', function() {
       }, function(err, stream) {
         assert(!err);
 
-        stream.on('error', function(err) {
+        stream.on('close', function(err) {
           assert(err);
           done();
         });

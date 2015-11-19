@@ -211,7 +211,7 @@ describe('Transport/Push', function() {
           }
         }, function(err, stream) {
           assert(!err);
-          stream.once('error', function(err) {
+          stream.once('close', function(err) {
             assert(err);
             done();
           });
