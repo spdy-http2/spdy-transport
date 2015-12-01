@@ -538,6 +538,7 @@ describe('Framer', function() {
             }
           } ], done);
         });
+        framer.enablePush(true);
       });
 
       it('should generate priority frame', function(done) {
@@ -589,7 +590,29 @@ describe('Framer', function() {
             }
           } ], done);
         });
+        framer.enablePush(true);
       });
+
+      if (version >= 4) {
+        it('should fail to generate regular frame on disabled PUSH',
+           function(done) {
+          framer.pushFrame({
+            id: 4,
+            promisedId: 41,
+            path: '/',
+            host: 'localhost',
+            method: 'GET',
+            status: 200,
+            headers: {
+              a: 'b'
+            }
+          }, function(err) {
+            assert(err);
+            done();
+          });
+          framer.enablePush(false);
+        });
+      }
     });
 
     describe('trailing HEADERS', function() {

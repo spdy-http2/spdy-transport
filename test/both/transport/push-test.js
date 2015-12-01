@@ -219,7 +219,7 @@ describe('Transport/Push', function() {
       });
     });
 
-    it('should fail on disabled PUSH_PROMISE', function(done) {
+    it('should fail on server-disabled PUSH_PROMISE', function(done) {
       client.request({
         path: '/parent'
       }, function(err, stream) {
@@ -244,6 +244,44 @@ describe('Transport/Push', function() {
           assert(err);
           done();
         });
+      });
+
+      server.on('stream', function(stream) {
+        assert.equal(stream.path, '/parent');
+
+        stream.respond(200, {});
+        stream.on('pushPromise', function() {
+          assert(false);
+        });
+      });
+    });
+
+    it('should fail on client-disabled PUSH_PROMISE', function(done) {
+      client.request({
+        path: '/parent'
+      }, function(err, stream) {
+        assert(!err);
+
+        stream._spdyState.framer.enablePush(false);
+        var push = stream.pushPromise({
+          path: '/push',
+          priority: {
+            parent: 0,
+            exclusive: false,
+            weight: 42
+          }
+        }, function(err, stream) {
+          assert(err);
+          setTimeout(function() {
+            done();
+          }, 50);
+        });
+        push.write('hello');
+      });
+
+      // The PUSH data should not be sent
+      server.on('frame', function(frame) {
+        assert.notEqual(frame.type, 'DATA');
       });
 
       server.on('stream', function(stream) {
