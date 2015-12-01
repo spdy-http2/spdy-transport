@@ -86,6 +86,61 @@ describe('Transport/Push', function() {
       });
     });
 
+    if (version >= 4) {
+      it('should send PUSH_PROMISE+HEADERS and HEADERS concurrently',
+         function(done) {
+        var seq = [];
+
+        client.request({
+          path: '/parent'
+        }, function(err, stream) {
+          assert(!err);
+
+          stream.on('pushPromise', function(push) {
+            assert.equal(push.path, '/push');
+            assert.equal(client.getCounter('push'), 1);
+            push.on('response', function(status) {
+              assert.equal(status, 201);
+              assert.deepEqual(seq, [ 0, 1, 2 ]);
+              done();
+            });
+          });
+        });
+
+        client.on('frame', function(frame) {
+          if (frame.type === 'HEADERS' || frame.type === 'PUSH_PROMISE')
+            seq.push(frame.headers.seq | 0);
+        });
+
+        server.on('stream', function(stream) {
+          assert.equal(stream.path, '/parent');
+
+          stream.pushPromise({
+            path: '/push',
+            status: 201,
+            priority: {
+              parent: 0,
+              exclusive: false,
+              weight: 42
+            },
+            headers: {
+              'seq': '0'
+            },
+            response: {
+              'seq': '2'
+            }
+          }, function(err, stream) {
+            assert(!err);
+          });
+          process.nextTick(function() {
+            stream.respond(200, {
+              'seq': '1'
+            });
+          });
+        });
+      });
+    }
+
     it('should create PUSH_PROMISE and end parent req', function(done) {
       client.request({
         path: '/parent'
