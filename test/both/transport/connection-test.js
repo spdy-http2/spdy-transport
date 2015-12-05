@@ -352,6 +352,20 @@ describe('Transport/Connection', function() {
       });
     });
 
+    if (version >= 4) {
+      it('should error on too large HPACK table in SETTINGS', function(done) {
+        client._spdyState.framer.settingsFrame({
+          header_table_size: 0xffffffff
+        }, function(err) {
+          assert(!err);
+        });
+
+        client.on('frame', function(frame) {
+          if (frame.type === 'GOAWAY') done();
+        });
+      });
+    }
+
     it('should send X_FORWARDED_FOR', function(done) {
       client.sendXForwardedFor('1.2.3.4');
 
