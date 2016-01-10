@@ -127,14 +127,14 @@ describe('Framer', function() {
     describe('WINDOW_UPDATE', function() {
       it('should generate regular frame', function(done) {
         framer.windowUpdateFrame({
-          id: 42,
+          id: 41,
           delta: 257
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'WINDOW_UPDATE',
-            id: 42,
+            id: 41,
             delta: 257
           }, done);
         });
@@ -142,14 +142,14 @@ describe('Framer', function() {
 
       it('should generate negative delta frame', function(done) {
         framer.windowUpdateFrame({
-          id: 42,
+          id: 41,
           delta: -257
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'WINDOW_UPDATE',
-            id: 42,
+            id: 41,
             delta: -257
           }, done);
         });
@@ -159,7 +159,7 @@ describe('Framer', function() {
     describe('DATA', function() {
       it('should generate regular frame', function(done) {
         framer.dataFrame({
-          id: 42,
+          id: 41,
           priority: 0,
           fin: false,
           data: new Buffer('hello')
@@ -168,7 +168,7 @@ describe('Framer', function() {
 
           expect({
             type: 'DATA',
-            id: 42,
+            id: 41,
             fin: false,
             data: new Buffer('hello')
           }, done);
@@ -177,7 +177,7 @@ describe('Framer', function() {
 
       it('should generate fin frame', function(done) {
         framer.dataFrame({
-          id: 42,
+          id: 41,
           priority: 0,
           fin: true,
           data: new Buffer('hello')
@@ -186,7 +186,7 @@ describe('Framer', function() {
 
           expect({
             type: 'DATA',
-            id: 42,
+            id: 41,
             fin: true,
             data: new Buffer('hello')
           }, done);
@@ -195,7 +195,7 @@ describe('Framer', function() {
 
       it('should generate empty frame', function(done) {
         framer.dataFrame({
-          id: 42,
+          id: 41,
           priority: 0,
           fin: false,
           data: new Buffer(0)
@@ -204,7 +204,7 @@ describe('Framer', function() {
 
           expect({
             type: 'DATA',
-            id: 42,
+            id: 41,
             fin: false,
             data: new Buffer(0)
           }, done);
@@ -219,7 +219,7 @@ describe('Framer', function() {
         big.fill('A');
 
         framer.dataFrame({
-          id: 42,
+          id: 41,
           priority: 0,
           fin: false,
           data: big
@@ -243,7 +243,7 @@ describe('Framer', function() {
 
       it('should update window on both sides', function(done) {
         framer.dataFrame({
-          id: 42,
+          id: 41,
           priority: 0,
           fin: false,
           data: new Buffer('hello')
@@ -252,7 +252,7 @@ describe('Framer', function() {
 
           expect({
             type: 'DATA',
-            id: 42,
+            id: 41,
             fin: false,
             data: new Buffer('hello')
           }, function() {
@@ -496,7 +496,7 @@ describe('Framer', function() {
     describe('PUSH_PROMISE', function() {
       it('should generate regular frame', function(done) {
         framer.pushFrame({
-          id: 4,
+          id: 3,
           promisedId: 41,
           path: '/',
           host: 'localhost',
@@ -510,7 +510,7 @@ describe('Framer', function() {
 
           expect([ {
             type: 'PUSH_PROMISE',
-            id: 4,
+            id: 3,
             promisedId: 41,
             fin: false,
             path: '/',
@@ -543,7 +543,7 @@ describe('Framer', function() {
 
       it('should generate priority frame', function(done) {
         framer.pushFrame({
-          id: 4,
+          id: 3,
           promisedId: 41,
           path: '/',
           host: 'localhost',
@@ -562,7 +562,7 @@ describe('Framer', function() {
 
           expect([ {
             type: 'PUSH_PROMISE',
-            id: 4,
+            id: 3,
             promisedId: 41,
             fin: false,
             path: '/',
@@ -597,7 +597,7 @@ describe('Framer', function() {
         it('should fail to generate regular frame on disabled PUSH',
            function(done) {
           framer.pushFrame({
-            id: 4,
+            id: 3,
             promisedId: 41,
             path: '/',
             host: 'localhost',
@@ -618,7 +618,7 @@ describe('Framer', function() {
     describe('trailing HEADERS', function() {
       it('should generate regular frame', function(done) {
         framer.headersFrame({
-          id: 4,
+          id: 3,
           headers: {
             a: 'b'
           }
@@ -627,7 +627,7 @@ describe('Framer', function() {
 
           expect({
             type: 'HEADERS',
-            id: 4,
+            id: 3,
             priority: {
               parent: 0,
               exclusive: false,
@@ -645,13 +645,13 @@ describe('Framer', function() {
 
       it('should generate frames concurrently', function(done) {
         framer.headersFrame({
-          id: 4,
+          id: 3,
           headers: {
             a: 'b'
           }
         });
         framer.headersFrame({
-          id: 4,
+          id: 3,
           headers: {
             c: 'd'
           }
@@ -659,7 +659,7 @@ describe('Framer', function() {
 
         expect([ {
           type: 'HEADERS',
-          id: 4,
+          id: 3,
           priority: {
             parent: 0,
             exclusive: false,
@@ -673,7 +673,7 @@ describe('Framer', function() {
           }
         }, {
           type: 'HEADERS',
-          id: 4,
+          id: 3,
           priority: {
             parent: 0,
             exclusive: false,
@@ -693,7 +693,7 @@ describe('Framer', function() {
         parser.setMaxFrameSize(10);
 
         framer.headersFrame({
-          id: 4,
+          id: 3,
           headers: {
             a: '+++++++++++++++++++++++',
             c: '+++++++++++++++++++++++',
@@ -706,7 +706,7 @@ describe('Framer', function() {
 
           expect({
             type: 'HEADERS',
-            id: 4,
+            id: 3,
             priority: {
               parent: 0,
               exclusive: false,
@@ -728,14 +728,14 @@ describe('Framer', function() {
 
       it('should generate empty frame', function(done) {
         framer.headersFrame({
-          id: 4,
+          id: 3,
           headers: {}
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'HEADERS',
-            id: 4,
+            id: 3,
             priority: {
               parent: 0,
               exclusive: false,
@@ -753,14 +753,14 @@ describe('Framer', function() {
     describe('RST', function() {
       it('should generate regular frame', function(done) {
         framer.rstFrame({
-          id: 4,
+          id: 3,
           code: 'CANCEL'
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'RST',
-            id: 4,
+            id: 3,
             code: 'CANCEL'
           }, done);
         });
@@ -788,14 +788,14 @@ describe('Framer', function() {
     describe('GOAWAY', function() {
       it('should generate regular frame', function(done) {
         framer.goawayFrame({
-          lastId: 42,
+          lastId: 41,
           code: 'PROTOCOL_ERROR'
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'GOAWAY',
-            lastId: 42,
+            lastId: 41,
             code: 'PROTOCOL_ERROR'
           }, done);
         });
@@ -803,14 +803,14 @@ describe('Framer', function() {
 
       it('should generate OK frame', function(done) {
         framer.goawayFrame({
-          lastId: 42,
+          lastId: 41,
           code: 'OK'
         }, function(err) {
           assert(!err);
 
           expect({
             type: 'GOAWAY',
-            lastId: 42,
+            lastId: 41,
             code: 'OK'
           }, done);
         });
