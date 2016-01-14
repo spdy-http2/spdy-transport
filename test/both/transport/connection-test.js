@@ -370,6 +370,28 @@ describe('Transport/Connection', function() {
           if (frame.type === 'GOAWAY') done();
         });
       });
+
+      it('should allow receiving PRIORITY on idle stream', function(done) {
+        client._spdyState.framer.priorityFrame({
+          id: 5,
+          priority: {
+            exclusive: false,
+            parent: 3,
+            weight: 10
+          }
+        }, function() {
+        });
+
+        server.on('frame', function(frame) {
+          if (frame.type === 'PRIORITY') {
+            setImmediate(done);
+          }
+        });
+
+        client.on('frame', function(frame) {
+          assert.notEqual(frame.type, 'GOAWAY');
+        });
+      });
     }
 
     it('should send X_FORWARDED_FOR', function(done) {
