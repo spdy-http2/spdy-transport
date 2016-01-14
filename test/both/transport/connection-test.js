@@ -320,13 +320,14 @@ describe('Transport/Connection', function() {
 
     it('should handle SETTINGS', function(done) {
       client._spdyState.framer.settingsFrame({
-        max_frame_size: 16384,
+        max_frame_size: 100000,
         max_header_list_size: 1000,
         header_table_size: 32,
         enable_push: true
       }, function(err) {
         assert(!err);
       });
+      client._spdyState.parser.setMaxFrameSize(100000);
 
       var sent;
       client.request({
@@ -336,7 +337,7 @@ describe('Transport/Connection', function() {
         sent = true;
 
         stream.on('data', function(chunk) {
-          assert(chunk.length <= 16384 || version < 4);
+          assert(chunk.length > 16384 || version < 4);
         });
 
         stream.once('end', done);
@@ -348,7 +349,12 @@ describe('Transport/Connection', function() {
         assert(incoming <= 1);
 
         stream.resume();
-        stream.end(new Buffer(1024));
+        server._spdyState.framer.dataFrame({
+          id: stream.id,
+          priority: stream._spdyState.priority.getPriority(),
+          fin: true,
+          data: new Buffer(32000)
+        });
       });
     });
 
