@@ -392,6 +392,43 @@ describe('Transport/Connection', function() {
           assert.notEqual(frame.type, 'GOAWAY');
         });
       });
+
+      it('should allow receiving PRIORITY on small-id stream', function(done) {
+        server.on('stream', function(stream) {
+          stream.end();
+        });
+
+        client._spdyState.stream.nextId = 3;
+
+        var one = client.request({
+          path: '/hello'
+        });
+        one.end();
+        one.resume();
+
+        one.on('close', function() {
+          client._spdyState.framer.priorityFrame({
+            id: 1,
+            priority: {
+              exclusive: false,
+              parent: 3,
+              weight: 10
+            }
+          }, function() {
+          });
+        });
+
+        server.on('frame', function(frame) {
+          if (frame.type === 'PRIORITY' && frame.id === 1) {
+            setImmediate(done);
+          }
+        });
+
+        client.removeAllListeners('frame');
+        client.on('frame', function(frame) {
+          assert.notEqual(frame.type, 'GOAWAY');
+        });
+      });
     }
 
     it('should send X_FORWARDED_FOR', function(done) {
