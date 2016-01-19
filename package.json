@@ -1,6 +1,6 @@
 {
   "name": "spdy-transport",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "SPDY v2, v3, v3.1 and HTTP2 transport",
   "license": "MIT",
   "keywords": [
