@@ -429,6 +429,29 @@ describe('Transport/Connection', function() {
           assert.notEqual(frame.type, 'GOAWAY');
         });
       });
+
+      it('should allow receiving PRIORITY on even-id stream', function(done) {
+        client._spdyState.framer.priorityFrame({
+          id: 2,
+          priority: {
+            exclusive: false,
+            parent: 3,
+            weight: 10
+          }
+        }, function() {
+        });
+
+        server.on('frame', function(frame) {
+          if (frame.type === 'PRIORITY' && frame.id === 2) {
+            setImmediate(done);
+          }
+        });
+
+        client.removeAllListeners('frame');
+        client.on('frame', function(frame) {
+          assert.notEqual(frame.type, 'GOAWAY');
+        });
+      });
     }
 
     it('should send X_FORWARDED_FOR', function(done) {
