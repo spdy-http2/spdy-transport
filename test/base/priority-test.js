@@ -132,6 +132,11 @@ describe('Stream Priority tree', function() {
     assert.deepEqual([ 2, 3, 4, 5, 6 ].map(function(id) {
       return tree.get(id).priority;
     }), [ 0.5, 0.25, 0.125, 0.125, 0.5 ]);
+
+    // This should not throw when removing ex-child of node swapped by
+    // exclusive one
+    tree.add({ id: 7, parent: 5, exclusive: false, weight: 2 });
+    tree.add({ id: 8, parent: 5, exclusive: false, weight: 2 });
   });
 
   it('should use default weight', function() {
