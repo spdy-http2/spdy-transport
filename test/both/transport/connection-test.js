@@ -1,5 +1,6 @@
 var assert = require('assert');
 var async = require('async');
+var streamPair = require('stream-pair');
 var fixtures = require('./fixtures');
 
 var expectData = fixtures.expectData;
@@ -355,6 +356,71 @@ describe('Transport/Connection', function() {
           fin: true,
           data: new Buffer(32000)
         });
+      });
+    });
+
+    it('should handle SETTINGS.initial_window_size=0', function(done) {
+      var pair = streamPair.create();
+
+      var client = transport.connection.create(pair.other, {
+        protocol: name,
+        windowSize: 256,
+        isServer: false
+      });
+      client.start(version);
+
+      var proto = transport.protocol[name];
+
+      var framer = proto.framer.create({
+        window: new transport.Window({
+          id: 0,
+          isServer: false,
+          recv: { size: 1024 * 1024 },
+          send: { size: 1024 * 1024 }
+        })
+      });
+      var parser = proto.parser.create({
+        window: new transport.Window({
+          id: 0,
+          isServer: false,
+          recv: { size: 1024 * 1024 },
+          send: { size: 1024 * 1024 }
+        })
+      });
+
+      framer.setVersion(version);
+      parser.setVersion(version);
+
+      var pool = proto.compressionPool.create();
+      var comp = pool.get(version);
+      framer.setCompression(comp);
+      parser.setCompression(comp);
+
+      framer.pipe(pair);
+      pair.pipe(parser);
+
+      framer.settingsFrame({
+        initial_window_size: 0
+      }, function(err) {
+        assert(!err);
+      });
+
+      client.on('frame', function(frame) {
+        if (frame.type !== 'SETTINGS')
+          return;
+
+        client.request({
+          path: '/hello'
+        }, function(err, stream) {
+          assert(!err);
+
+          // Attempt to get data through
+          setTimeout(done, 100);
+        }).end('hello');
+      });
+
+      parser.on('data', function(frame) {
+        assert.notEqual(frame.type, 'DATA');
       });
     });
 

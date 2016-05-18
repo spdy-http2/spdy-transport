@@ -492,6 +492,36 @@ describe('Transport/Stream', function() {
       });
     });
 
+    it('should emit error on window overflow', function(done) {
+      var req = client.request({
+        path: '/path',
+        priority: {
+          parent: 0,
+          exclusive: false,
+          weight: 42
+        }
+      }, function(err, stream) {
+        assert(!err);
+      });
+
+      server.on('stream', function(stream) {
+        server._spdyState.framer.windowUpdateFrame({
+          id: stream.id,
+          delta: 0x7fffffff
+        });
+
+        var waiting = 2;
+        function next(err) {
+          assert(err);
+          if (--waiting === 0) done();
+        }
+
+        stream.once('error', next);
+
+        req.once('error', next);
+      });
+    });
+
     if (version >= 4) {
       it('should update stream priority', function(done) {
         client.request({
