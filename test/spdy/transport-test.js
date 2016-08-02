@@ -59,4 +59,38 @@ describe('SPDY Transport', function() {
       });
     });
   });
+
+  it('it should not wait for id=0 WINDOW_UPDATE on v3', function(done) {
+    client.start(3);
+
+    var buf = new Buffer(64 * 1024);
+    buf.fill('x');
+
+    client.request({
+      method: 'POST',
+      path: '/',
+      headers: {}
+    }, function(err, stream) {
+      assert(!err);
+
+      stream.write(buf);
+      stream.write(buf);
+      stream.write(buf);
+      stream.end(buf);
+    });
+
+    server.on('stream', function(stream) {
+      stream.respond(200, {});
+
+      var received = 0;
+      stream.on('data', function(chunk) {
+        received += chunk.length;
+      });
+
+      stream.on('end', function() {
+        assert.equal(received, buf.length * 4);
+        done();
+      });
+    });
+  });
 });
