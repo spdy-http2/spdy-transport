@@ -425,15 +425,48 @@ describe('Transport/Connection', function() {
     });
 
     if (version >= 4) {
-      it('should error on too large HPACK table in SETTINGS', function(done) {
-        client._spdyState.framer.settingsFrame({
-          header_table_size: 0xffffffff
+      it('should ignore too large HPACK table in SETTINGS', function(done) {
+        var limit = 0xffffffff;
+        server._spdyState.framer.settingsFrame({
+          header_table_size: limit
         }, function(err) {
           assert(!err);
         });
 
+        var headers = {};
+        for (var i = 0; i < 2048; i++)
+          headers['h' + i] = (i % 250).toString();
+
         client.on('frame', function(frame) {
-          if (frame.type === 'GOAWAY') done();
+          if (frame.type !== 'SETTINGS' ||
+              frame.settings.header_table_size !== 0xffffffff) {
+            return;
+          }
+
+          // Time for request!
+          var one = client.request({
+            headers: headers,
+            path: '/hello'
+          });
+          one.end();
+          one.resume();
+        });
+
+        server.on('frame', function(frame) {
+          if (frame.type === 'SETTINGS') {
+            // Emulate bigger table on server-side
+            server._spdyState.pair.decompress._table.protocolMaxSize = limit;
+            server._spdyState.pair.decompress._table.maxSize = limit;
+          }
+
+          if (frame.type !== 'HEADERS')
+            return;
+
+          assert.equal(server._spdyState.pair.decompress._table.size, 4062);
+          assert.equal(client._spdyState.pair.compress._table.size, 4062);
+          assert.equal(client._spdyState.pair.compress._table.maxSize,
+                       client._spdyState.constants.HEADER_TABLE_SIZE);
+          done();
         });
       });
 

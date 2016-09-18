@@ -16,7 +16,7 @@
   "author": "Fedor Indutny <fedor@indutny.com>",
   "dependencies": {
     "debug": "^2.2.0",
-    "hpack.js": "^2.1.4",
+    "hpack.js": "^2.1.6",
     "obuf": "^1.1.0",
     "readable-stream": "^2.0.1",
     "wbuf": "^1.4.0"
