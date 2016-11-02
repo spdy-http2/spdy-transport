@@ -267,18 +267,27 @@ describe('Framer', function() {
 
     describe('HEADERS', function() {
       it('should generate request frame', function(done) {
+        const headers = {
+          a: 'b',
+          host: 'localhost',
+
+          // Should be removed
+          connection: 'keep-alive',
+          'keep-alive': 'yes',
+          'proxy-connection': 'totally',
+          'transfer-encoding': 'chunked'
+        };
+
+        // Should be removed too
+        if (version >= 4)
+          headers.upgrade = 'h2';
+
         framer.requestFrame({
           id: 1,
           path: '/',
           host: 'localhost',
           method: 'GET',
-          headers: {
-            a: 'b',
-            host: 'localhost',
-
-            // Should be removed
-            connection: 'keep-alive'
-          }
+          headers: headers
         }, function(err) {
           assert(!err);
 
