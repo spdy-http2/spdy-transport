@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "async": "^1.2.1",
+    "istanbul": "^0.4.5",
     "mocha": "^2.2.5",
     "pre-commit": "^1.2.2",
     "standard": "^8.6.0",
@@ -32,7 +33,7 @@
   "scripts": {
     "lint": "standard",
     "test": "mocha --reporter=spec test/**/*-test.js test/**/**/*-test.js",
-    "coverage": "echo 'coming soon™' && exit 0"
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- --reporter=spec test/**/*-test.js test/**/**/*-test.js"
   },
   "pre-commit": [
     "lint",
