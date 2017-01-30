@@ -24,14 +24,18 @@
   },
   "devDependencies": {
     "async": "^1.2.1",
-    "jscs": "^1.13.1",
-    "jshint": "^2.8.0",
     "mocha": "^2.2.5",
+    "pre-commit": "^1.2.2",
+    "standard": "^8.6.0",
     "stream-pair": "^1.0.0"
   },
   "scripts": {
-    "lint": "jscs lib/**/*.js test/**/*.js && jshint lib/**/*.js",
+    "lint": "standard",
     "test": "mocha --reporter=spec test/**/*-test.js test/**/**/*-test.js",
     "coverage": "echo 'coming soon™' && exit 0"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
 }
