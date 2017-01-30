@@ -1,7 +1,7 @@
 {
   "name": "spdy-transport",
   "version": "2.0.18",
-  "main": "./lib/spdy-transport",
+  "main": "lib/spdy-transport",
   "description": "SPDY v2, v3, v3.1 and HTTP2 transport",
   "license": "MIT",
   "keywords": [
@@ -11,9 +11,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/indutny/spdy-transport.git"
+    "url": "git://github.com/spdy-http2/spdy-transport.git"
   },
-  "homepage": "https://github.com/indutny/spdy-transport",
+  "homepage": "https://github.com/spdy-http2/spdy-transport",
   "author": "Fedor Indutny <fedor@indutny.com>",
   "dependencies": {
     "debug": "^2.2.0",
