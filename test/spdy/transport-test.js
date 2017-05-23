@@ -2,6 +2,7 @@
 
 var assert = require('assert')
 var streamPair = require('stream-pair')
+var Buffer = require('safe-buffer').Buffer
 
 var transport = require('../../')
 
@@ -64,7 +65,7 @@ describe('SPDY Transport', function () {
   it('it should not wait for id=0 WINDOW_UPDATE on v3', function (done) {
     client.start(3)
 
-    var buf = new Buffer(64 * 1024)
+    var buf = Buffer.alloc(64 * 1024)
     buf.fill('x')
 
     client.request({

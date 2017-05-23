@@ -4,6 +4,7 @@ var assert = require('assert')
 
 var transport = require('../../')
 var spdy = transport.protocol.spdy
+var Buffer = require('safe-buffer').Buffer
 
 describe('SPDY Parser (v3)', function () {
   var parser
@@ -25,7 +26,7 @@ describe('SPDY Parser (v3)', function () {
   })
 
   function pass (data, expected, done) {
-    parser.write(new Buffer(data, 'hex'))
+    parser.write(Buffer.from(data, 'hex'))
 
     if (!Array.isArray(expected)) {
       expected = [ expected ]
@@ -46,7 +47,7 @@ describe('SPDY Parser (v3)', function () {
   }
 
   function fail (data, code, re, done) {
-    parser.write(new Buffer(data, 'hex'), function (err) {
+    parser.write(Buffer.from(data, 'hex'), function (err) {
       assert(err)
       assert(err instanceof transport.protocol.base.utils.ProtocolError)
       assert.equal(err.code, spdy.constants.error[code])
@@ -202,7 +203,7 @@ describe('SPDY Parser (v3)', function () {
       var hexFrame = '000000010000001157726974696e6720746f2073747265616d'
 
       pass(hexFrame, {
-        data: new Buffer('57726974696e6720746f2073747265616d', 'hex'),
+        data: Buffer.from('57726974696e6720746f2073747265616d', 'hex'),
         fin: false,
         id: 1,
         type: 'DATA'
@@ -213,14 +214,14 @@ describe('SPDY Parser (v3)', function () {
       var hexFrame = '000000010000001157726974696e6720746f207374726561'
 
       pass(hexFrame, {
-        data: new Buffer('57726974696e6720746f207374726561', 'hex'),
+        data: Buffer.from('57726974696e6720746f207374726561', 'hex'),
         fin: false,
         id: 1,
         type: 'DATA'
       }, function () {
         assert.equal(parser.waiting, 1)
         pass('ff', {
-          data: new Buffer('ff', 'hex'),
+          data: Buffer.from('ff', 'hex'),
           fin: false,
           id: 1,
           type: 'DATA'
@@ -235,7 +236,7 @@ describe('SPDY Parser (v3)', function () {
       var hexFrame = '000000010100001157726974696e6720746f2073747265616d'
 
       pass(hexFrame, {
-        data: new Buffer('57726974696e6720746f2073747265616d', 'hex'),
+        data: Buffer.from('57726974696e6720746f2073747265616d', 'hex'),
         fin: true,
         id: 1,
         type: 'DATA'
@@ -246,14 +247,14 @@ describe('SPDY Parser (v3)', function () {
       var hexFrame = '000000010100001157726974696e6720746f207374726561'
 
       pass(hexFrame, {
-        data: new Buffer('57726974696e6720746f207374726561', 'hex'),
+        data: Buffer.from('57726974696e6720746f207374726561', 'hex'),
         fin: false,
         id: 1,
         type: 'DATA'
       }, function () {
         assert.equal(parser.waiting, 1)
         pass('ff', {
-          data: new Buffer('ff', 'hex'),
+          data: Buffer.from('ff', 'hex'),
           fin: true,
           id: 1,
           type: 'DATA'
@@ -383,7 +384,7 @@ describe('SPDY Parser (v3)', function () {
 
       pass(hexFrame, {
         ack: true,
-        opaque: new Buffer('00000001', 'hex'),
+        opaque: Buffer.from('00000001', 'hex'),
         type: 'PING'
       }, done)
     })
@@ -395,7 +396,7 @@ describe('SPDY Parser (v3)', function () {
 
       pass(hexFrame, {
         ack: false,
-        opaque: new Buffer('00000002', 'hex'),
+        opaque: Buffer.from('00000002', 'hex'),
         type: 'PING'
       }, done)
     })

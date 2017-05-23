@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
 var assert = require('assert')
+var Buffer = require('safe-buffer').Buffer
 
 var transport = require('../../')
 
@@ -162,7 +163,7 @@ describe('Framer', function () {
           id: 41,
           priority: 0,
           fin: false,
-          data: new Buffer('hello')
+          data: Buffer.from('hello')
         }, function (err) {
           assert(!err)
 
@@ -170,7 +171,7 @@ describe('Framer', function () {
             type: 'DATA',
             id: 41,
             fin: false,
-            data: new Buffer('hello')
+            data: Buffer.from('hello')
           }, done)
         })
       })
@@ -180,7 +181,7 @@ describe('Framer', function () {
           id: 41,
           priority: 0,
           fin: true,
-          data: new Buffer('hello')
+          data: Buffer.from('hello')
         }, function (err) {
           assert(!err)
 
@@ -188,7 +189,7 @@ describe('Framer', function () {
             type: 'DATA',
             id: 41,
             fin: true,
-            data: new Buffer('hello')
+            data: Buffer.from('hello')
           }, done)
         })
       })
@@ -198,7 +199,7 @@ describe('Framer', function () {
           id: 41,
           priority: 0,
           fin: false,
-          data: new Buffer(0)
+          data: Buffer.alloc(0)
         }, function (err) {
           assert(!err)
 
@@ -206,7 +207,7 @@ describe('Framer', function () {
             type: 'DATA',
             id: 41,
             fin: false,
-            data: new Buffer(0)
+            data: Buffer.alloc(0)
           }, done)
         })
       })
@@ -215,7 +216,7 @@ describe('Framer', function () {
         framer.setMaxFrameSize(10)
         parser.setMaxFrameSize(10)
 
-        var big = new Buffer(32)
+        var big = Buffer.alloc(32)
         big.fill('A')
 
         framer.dataFrame({
@@ -245,7 +246,7 @@ describe('Framer', function () {
           id: 41,
           priority: 0,
           fin: false,
-          data: new Buffer('hello')
+          data: Buffer.from('hello')
         }, function (err) {
           assert(!err)
 
@@ -253,7 +254,7 @@ describe('Framer', function () {
             type: 'DATA',
             id: 41,
             fin: false,
-            data: new Buffer('hello')
+            data: Buffer.from('hello')
           }, function () {
             assert.equal(framer.window.send.current,
                          parser.window.recv.current)
@@ -779,7 +780,7 @@ describe('Framer', function () {
     describe('PING', function () {
       it('should generate regular frame', function (done) {
         framer.pingFrame({
-          opaque: new Buffer([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
+          opaque: Buffer.from([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
           ack: true
         }, function (err) {
           assert(!err)
@@ -787,8 +788,8 @@ describe('Framer', function () {
           expect({
             type: 'PING',
             opaque: version < 4
-              ? new Buffer([ 5, 6, 7, 8 ])
-              : new Buffer([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
+              ? Buffer.from([ 5, 6, 7, 8 ])
+              : Buffer.from([ 1, 2, 3, 4, 5, 6, 7, 8 ]),
             ack: true
           }, done)
         })

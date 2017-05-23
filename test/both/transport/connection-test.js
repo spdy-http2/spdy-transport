@@ -4,6 +4,7 @@ var assert = require('assert')
 var async = require('async')
 var streamPair = require('stream-pair')
 var fixtures = require('./fixtures')
+var Buffer = require('safe-buffer').Buffer
 
 var expectData = fixtures.expectData
 var everyProtocol = fixtures.everyProtocol
@@ -358,7 +359,7 @@ describe('Transport/Connection', function () {
           id: stream.id,
           priority: stream._spdyState.priority.getPriority(),
           fin: true,
-          data: new Buffer(32000)
+          data: Buffer.alloc(32000)
         })
       })
     })

@@ -4,6 +4,7 @@ var assert = require('assert')
 
 var transport = require('../../')
 var http2 = transport.protocol.http2
+var Buffer = require('safe-buffer').Buffer
 
 describe('HTTP2 Parser', function () {
   var parser
@@ -27,7 +28,7 @@ describe('HTTP2 Parser', function () {
   })
 
   function pass (data, expected, done) {
-    parser.write(new Buffer(data, 'hex'))
+    parser.write(Buffer.from(data, 'hex'))
 
     parser.once('data', function (frame) {
       assert.deepEqual(frame, expected)
@@ -37,7 +38,7 @@ describe('HTTP2 Parser', function () {
   }
 
   function fail (data, code, re, done) {
-    parser.write(new Buffer(data, 'hex'), function (err) {
+    parser.write(Buffer.from(data, 'hex'), function (err) {
       assert(err)
       assert(err instanceof transport.protocol.base.utils.ProtocolError)
       assert.equal(err.code, http2.constants.error[code])
@@ -282,7 +283,7 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: false,
-        data: new Buffer('abbadead', 'hex')
+        data: Buffer.from('abbadead', 'hex')
       }, done)
     })
 
@@ -291,14 +292,14 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: false,
-        data: new Buffer('abbade', 'hex')
+        data: Buffer.from('abbade', 'hex')
       }, function () {
         assert.equal(parser.waiting, 1)
         pass('ff', {
           type: 'DATA',
           id: 1,
           fin: false,
-          data: new Buffer('ff', 'hex')
+          data: Buffer.from('ff', 'hex')
         }, function () {
           assert.equal(window.recv.current, 1048572)
           done()
@@ -311,7 +312,7 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: true,
-        data: new Buffer('deadbeef', 'hex')
+        data: Buffer.from('deadbeef', 'hex')
       }, done)
     })
 
@@ -320,14 +321,14 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: false,
-        data: new Buffer('abbade', 'hex')
+        data: Buffer.from('abbade', 'hex')
       }, function () {
         assert.equal(parser.waiting, 1)
         pass('ff', {
           type: 'DATA',
           id: 1,
           fin: true,
-          data: new Buffer('ff', 'hex')
+          data: Buffer.from('ff', 'hex')
         }, done)
       })
     })
@@ -337,7 +338,7 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: false,
-        data: new Buffer('12345678', 'hex')
+        data: Buffer.from('12345678', 'hex')
       }, done)
     })
 
@@ -346,7 +347,7 @@ describe('HTTP2 Parser', function () {
         type: 'DATA',
         id: 1,
         fin: false,
-        data: new Buffer('12345678', 'hex')
+        data: Buffer.from('12345678', 'hex')
       }, function () {
         assert(false)
       })
@@ -420,7 +421,7 @@ describe('HTTP2 Parser', function () {
       pass('0000080600000000000102030405060708', {
         type: 'PING',
         ack: false,
-        opaque: new Buffer('0102030405060708', 'hex')
+        opaque: Buffer.from('0102030405060708', 'hex')
       }, done)
     })
 
@@ -428,7 +429,7 @@ describe('HTTP2 Parser', function () {
       pass('0000080601000000000102030405060708', {
         type: 'PING',
         ack: true,
-        opaque: new Buffer('0102030405060708', 'hex')
+        opaque: Buffer.from('0102030405060708', 'hex')
       }, done)
     })
 
@@ -465,7 +466,7 @@ describe('HTTP2 Parser', function () {
         type: 'GOAWAY',
         lastId: 1,
         code: 'INTERNAL_ERROR',
-        debug: new Buffer('dead', 'hex')
+        debug: Buffer.from('dead', 'hex')
       }, done)
     })
 

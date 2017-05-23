@@ -2,6 +2,7 @@
 
 var assert = require('assert')
 var fixtures = require('./fixtures')
+var Buffer = require('safe-buffer').Buffer
 
 var expectData = fixtures.expectData
 var everyProtocol = fixtures.everyProtocol
@@ -222,7 +223,7 @@ describe('Transport/Stream', function () {
             id: stream.id,
             priority: 0,
             fin: false,
-            data: new Buffer('no way')
+            data: Buffer.from('no way')
           })
         })
 
@@ -244,7 +245,7 @@ describe('Transport/Stream', function () {
     })
 
     it('should truncate data to fit maxChunk', function (done) {
-      var big = new Buffer(1024)
+      var big = Buffer.alloc(1024)
       big.fill('a')
 
       client.request({
@@ -269,9 +270,9 @@ describe('Transport/Stream', function () {
     })
 
     it('should control the flow of the request', function (done) {
-      var a = new Buffer(128)
+      var a = Buffer.alloc(128)
       a.fill('a')
-      var b = new Buffer(128)
+      var b = Buffer.alloc(128)
       b.fill('b')
 
       client.request({
@@ -327,7 +328,7 @@ describe('Transport/Stream', function () {
     })
 
     it('should split the data if it is too big', function (done) {
-      var a = new Buffer(1024)
+      var a = Buffer.alloc(1024)
       a.fill('a')
 
       client.request({
