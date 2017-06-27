@@ -2,6 +2,9 @@
   "name": "spdy-transport",
   "version": "3.0.0",
   "main": "lib/spdy-transport",
+  "files": [
+    "lib"
+  ],
   "description": "SPDY v2, v3, v3.1 and HTTP2 transport",
   "license": "MIT",
   "keywords": [
