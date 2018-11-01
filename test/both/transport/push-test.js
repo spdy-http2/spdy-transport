@@ -24,17 +24,17 @@ describe('Transport/Push', function () {
         assert(!err)
 
         stream.on('pushPromise', function (push) {
-          assert.equal(push.path, '/push')
-          assert.equal(client.getCounter('push'), 1)
+          assert.strictEqual(push.path, '/push')
+          assert.strictEqual(client.getCounter('push'), 1)
           push.on('response', function (status, headers) {
-            assert.equal(status, 201)
+            assert.strictEqual(status, 201)
             done()
           })
         })
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({
@@ -59,14 +59,14 @@ describe('Transport/Push', function () {
 
         stream.on('pushPromise', function (push) {
           push.on('headers', function (headers) {
-            assert.deepEqual(headers, { a: 'b' })
+            assert.deepStrictEqual(headers, { a: 'b' })
             done()
           })
         })
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({
@@ -86,58 +86,58 @@ describe('Transport/Push', function () {
 
     if (version >= 4) {
       it('should send PUSH_PROMISE+HEADERS and HEADERS concurrently',
-         function (done) {
-           var seq = []
+        function (done) {
+          var seq = []
 
-           client.request({
-             path: '/parent'
-           }, function (err, stream) {
-             assert(!err)
+          client.request({
+            path: '/parent'
+          }, function (err, stream) {
+            assert(!err)
 
-             stream.on('pushPromise', function (push) {
-               assert.equal(push.path, '/push')
-               assert.equal(client.getCounter('push'), 1)
-               push.on('response', function (status) {
-                 assert.equal(status, 201)
-                 assert.deepEqual(seq, [ 0, 1, 2 ])
-                 done()
-               })
-             })
-           })
+            stream.on('pushPromise', function (push) {
+              assert.strictEqual(push.path, '/push')
+              assert.strictEqual(client.getCounter('push'), 1)
+              push.on('response', function (status) {
+                assert.strictEqual(status, 201)
+                assert.deepStrictEqual(seq, [ 0, 1, 2 ])
+                done()
+              })
+            })
+          })
 
-           client.on('frame', function (frame) {
-             if (frame.type === 'HEADERS' || frame.type === 'PUSH_PROMISE') {
-               seq.push(frame.headers.seq | 0)
-             }
-           })
+          client.on('frame', function (frame) {
+            if (frame.type === 'HEADERS' || frame.type === 'PUSH_PROMISE') {
+              seq.push(frame.headers.seq | 0)
+            }
+          })
 
-           server.on('stream', function (stream) {
-             assert.equal(stream.path, '/parent')
+          server.on('stream', function (stream) {
+            assert.strictEqual(stream.path, '/parent')
 
-             stream.pushPromise({
-               path: '/push',
-               status: 201,
-               priority: {
-                 parent: 0,
-                 exclusive: false,
-                 weight: 42
-               },
-               headers: {
-                 'seq': '0'
-               },
-               response: {
-                 'seq': '2'
-               }
-             }, function (err, stream) {
-               assert(!err)
-             })
-             process.nextTick(function () {
-               stream.respond(200, {
-                 'seq': '1'
-               })
-             })
-           })
-         })
+            stream.pushPromise({
+              path: '/push',
+              status: 201,
+              priority: {
+                parent: 0,
+                exclusive: false,
+                weight: 42
+              },
+              headers: {
+                'seq': '0'
+              },
+              response: {
+                'seq': '2'
+              }
+            }, function (err, stream) {
+              assert(!err)
+            })
+            process.nextTick(function () {
+              stream.respond(200, {
+                'seq': '1'
+              })
+            })
+          })
+        })
     }
 
     it('should create PUSH_PROMISE and end parent req', function (done) {
@@ -149,13 +149,13 @@ describe('Transport/Push', function () {
         stream.resume()
         stream.end()
         stream.on('pushPromise', function (push) {
-          assert.equal(push.path, '/push')
+          assert.strictEqual(push.path, '/push')
           done()
         })
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.resume()
@@ -182,13 +182,13 @@ describe('Transport/Push', function () {
         assert(!err)
 
         stream.on('pushPromise', function (push) {
-          assert.equal(push.path, '/push')
+          assert.strictEqual(push.path, '/push')
           expectData(push, 'ok', done)
         })
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         var push = stream.pushPromise({
@@ -213,7 +213,7 @@ describe('Transport/Push', function () {
         assert(!err)
 
         stream.on('pushPromise', function (push) {
-          assert.equal(push.path, '/push')
+          assert.strictEqual(push.path, '/push')
 
           push.on('close', next)
           push.resume()
@@ -221,7 +221,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({
@@ -254,7 +254,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({
@@ -302,7 +302,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.on('pushPromise', function () {
@@ -336,11 +336,11 @@ describe('Transport/Push', function () {
 
       // The PUSH data should not be sent
       server.on('frame', function (frame) {
-        assert.notEqual(frame.type, 'DATA')
+        assert.notStrictEqual(frame.type, 'DATA')
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.on('pushPromise', function () {
@@ -369,7 +369,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
 
@@ -396,7 +396,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({
@@ -430,7 +430,7 @@ describe('Transport/Push', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.path, '/parent')
+        assert.strictEqual(stream.path, '/parent')
 
         stream.respond(200, {})
         stream.pushPromise({

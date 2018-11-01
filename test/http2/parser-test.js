@@ -4,7 +4,6 @@ var assert = require('assert')
 
 var transport = require('../../')
 var http2 = transport.protocol.http2
-var Buffer = require('safe-buffer').Buffer
 
 describe('HTTP2 Parser', function () {
   var parser
@@ -31,8 +30,8 @@ describe('HTTP2 Parser', function () {
     parser.write(Buffer.from(data, 'hex'))
 
     parser.once('data', function (frame) {
-      assert.deepEqual(frame, expected)
-      assert.equal(parser.buffer.size, 0)
+      assert.deepStrictEqual(frame, expected)
+      assert.strictEqual(parser.buffer.size, 0)
       done()
     })
   }
@@ -41,11 +40,12 @@ describe('HTTP2 Parser', function () {
     parser.write(Buffer.from(data, 'hex'), function (err) {
       assert(err)
       assert(err instanceof transport.protocol.base.utils.ProtocolError)
-      assert.equal(err.code, http2.constants.error[code])
+      assert.strictEqual(err.code, http2.constants.error[code])
       assert(re.test(err.message), err.message)
 
       done()
     })
+    parser.once('error', assert)
   }
 
   describe('SETTINGS', function () {
@@ -271,9 +271,9 @@ describe('HTTP2 Parser', function () {
 
     it('should fail on bigger frame', function (done) {
       fail('0000050300000000010102030405',
-           'FRAME_SIZE_ERROR',
-           /length not 4/i,
-           done)
+        'FRAME_SIZE_ERROR',
+        /length not 4/i,
+        done)
     })
   })
 
@@ -294,14 +294,14 @@ describe('HTTP2 Parser', function () {
         fin: false,
         data: Buffer.from('abbade', 'hex')
       }, function () {
-        assert.equal(parser.waiting, 1)
+        assert.strictEqual(parser.waiting, 1)
         pass('ff', {
           type: 'DATA',
           id: 1,
           fin: false,
           data: Buffer.from('ff', 'hex')
         }, function () {
-          assert.equal(window.recv.current, 1048572)
+          assert.strictEqual(window.recv.current, 1048572)
           done()
         })
       })
@@ -323,7 +323,7 @@ describe('HTTP2 Parser', function () {
         fin: false,
         data: Buffer.from('abbade', 'hex')
       }, function () {
-        assert.equal(parser.waiting, 1)
+        assert.strictEqual(parser.waiting, 1)
         pass('ff', {
           type: 'DATA',
           id: 1,
@@ -356,9 +356,9 @@ describe('HTTP2 Parser', function () {
 
     it('should fail on incorrectly padded frame', function (done) {
       fail('000007000800000001ff0000000affff',
-           'PROTOCOL_ERROR',
-           /padding size/i,
-           done)
+        'PROTOCOL_ERROR',
+        /padding size/i,
+        done)
     })
   })
 
@@ -397,9 +397,9 @@ describe('HTTP2 Parser', function () {
       var hello = '40849cb4507f84f07b2893'
 
       fail('000011050c00000001ff00000002' + hello + 'ff',
-           'PROTOCOL_ERROR',
-           /padding size/i,
-           done)
+        'PROTOCOL_ERROR',
+        /padding size/i,
+        done)
     })
 
     it('should fail on empty frame', function (done) {
@@ -410,9 +410,9 @@ describe('HTTP2 Parser', function () {
       var hello = '40849cb4507f84f07b2893'
 
       fail('00000f05040000000000000002' + hello,
-           'PROTOCOL_ERROR',
-           /stream id/i,
-           done)
+        'PROTOCOL_ERROR',
+        /stream id/i,
+        done)
     })
   })
 
@@ -439,16 +439,16 @@ describe('HTTP2 Parser', function () {
 
     it('should fail too big frame', function (done) {
       fail('000009060100000000010203040506070809',
-           'FRAME_SIZE_ERROR',
-           /length !=/i,
-           done)
+        'FRAME_SIZE_ERROR',
+        /length !=/i,
+        done)
     })
 
     it('should fail on non-zero stream id', function (done) {
       fail('0000080601000000010102030405060708',
-           'PROTOCOL_ERROR',
-           /invalid stream id/i,
-           done)
+        'PROTOCOL_ERROR',
+        /invalid stream id/i,
+        done)
     })
   })
 
@@ -476,9 +476,9 @@ describe('HTTP2 Parser', function () {
 
     it('should fail on non-zero stream id', function (done) {
       fail('0000080700000001000000000100000002',
-           'PROTOCOL_ERROR',
-           /invalid stream/i,
-           done)
+        'PROTOCOL_ERROR',
+        /invalid stream/i,
+        done)
     })
   })
 
@@ -513,23 +513,23 @@ describe('HTTP2 Parser', function () {
 
     it('should fail on too big frame', function (done) {
       fail('000006020000000001010203040506',
-           'FRAME_SIZE_ERROR',
-           /length != 5/i,
-           done)
+        'FRAME_SIZE_ERROR',
+        /length != 5/i,
+        done)
     })
 
     it('should fail on too big frame', function (done) {
       fail('000006020000000001010203040506',
-           'FRAME_SIZE_ERROR',
-           /length != 5/i,
-           done)
+        'FRAME_SIZE_ERROR',
+        /length != 5/i,
+        done)
     })
 
     it('should fail on zero stream id', function (done) {
       fail('0000050200000000000102030405',
-           'PROTOCOL_ERROR',
-           /invalid stream id/i,
-           done)
+        'PROTOCOL_ERROR',
+        /invalid stream id/i,
+        done)
     })
   })
 

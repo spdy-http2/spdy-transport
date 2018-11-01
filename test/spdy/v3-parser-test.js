@@ -4,7 +4,6 @@ var assert = require('assert')
 
 var transport = require('../../')
 var spdy = transport.protocol.spdy
-var Buffer = require('safe-buffer').Buffer
 
 describe('SPDY Parser (v3)', function () {
   var parser
@@ -37,10 +36,10 @@ describe('SPDY Parser (v3)', function () {
         return
       }
 
-      assert.deepEqual(frame, expected.shift())
+      assert.deepStrictEqual(frame, expected.shift())
 
       if (expected.length === 0) {
-        assert.equal(parser.buffer.size, 0)
+        assert.strictEqual(parser.buffer.size, 0)
         done()
       }
     })
@@ -50,11 +49,12 @@ describe('SPDY Parser (v3)', function () {
     parser.write(Buffer.from(data, 'hex'), function (err) {
       assert(err)
       assert(err instanceof transport.protocol.base.utils.ProtocolError)
-      assert.equal(err.code, spdy.constants.error[code])
+      assert.strictEqual(err.code, spdy.constants.error[code])
       assert(re.test(err.message), err.message)
 
       done()
     })
+    parser.once('error', assert)
   }
 
   describe('SYN_STREAM', function () {
@@ -164,7 +164,7 @@ describe('SPDY Parser (v3)', function () {
       pass(hexFrame, {
         fin: false,
         headers: {
-          ':status': 200,
+          ':status': '200',
           there: 'there'
         },
         id: 1,
@@ -219,14 +219,14 @@ describe('SPDY Parser (v3)', function () {
         id: 1,
         type: 'DATA'
       }, function () {
-        assert.equal(parser.waiting, 1)
+        assert.strictEqual(parser.waiting, 1)
         pass('ff', {
           data: Buffer.from('ff', 'hex'),
           fin: false,
           id: 1,
           type: 'DATA'
         }, function () {
-          assert.equal(window.recv.current, 1048559)
+          assert.strictEqual(window.recv.current, 1048559)
           done()
         })
       })
@@ -252,7 +252,7 @@ describe('SPDY Parser (v3)', function () {
         id: 1,
         type: 'DATA'
       }, function () {
-        assert.equal(parser.waiting, 1)
+        assert.strictEqual(parser.waiting, 1)
         pass('ff', {
           data: Buffer.from('ff', 'hex'),
           fin: true,

@@ -2,7 +2,6 @@
 
 var assert = require('assert')
 var fixtures = require('./fixtures')
-var Buffer = require('safe-buffer').Buffer
 
 var expectData = fixtures.expectData
 var everyProtocol = fixtures.everyProtocol
@@ -37,7 +36,7 @@ describe('Transport/Stream', function () {
           assert(received)
 
           assert.strictEqual(code, 200)
-          assert.equal(headers.ohai, 'yes')
+          assert.strictEqual(headers.ohai, 'yes')
           done()
         })
       })
@@ -50,10 +49,10 @@ describe('Transport/Stream', function () {
         received = true
 
         assert(sent)
-        assert.equal(stream.method, 'GET')
-        assert.equal(stream.path, '/hello')
-        assert.equal(stream.headers.a, 'b')
-        assert.equal(stream.headers.c, 'd')
+        assert.strictEqual(stream.method, 'GET')
+        assert.strictEqual(stream.path, '/hello')
+        assert.strictEqual(stream.headers.a, 'b')
+        assert.strictEqual(stream.headers.c, 'd')
       })
     })
 
@@ -127,7 +126,7 @@ describe('Transport/Stream', function () {
         var gotHeaders = false
         stream.on('headers', function (headers) {
           gotHeaders = true
-          assert.equal(headers.a, 'b')
+          assert.strictEqual(headers.a, 'b')
         })
 
         stream.resume()
@@ -369,7 +368,7 @@ describe('Transport/Stream', function () {
 
         stream.resume()
         stream.on('headers', function (headers) {
-          assert.equal(headers.trailer, 'yes')
+          assert.strictEqual(headers.trailer, 'yes')
           done()
         })
       })
@@ -485,9 +484,9 @@ describe('Transport/Stream', function () {
 
         // SPDY has just 3 bits of priority, can't fit 256 range into it
         if (version >= 4) {
-          assert.equal(priority.weight, 42)
+          assert.strictEqual(priority.weight, 42)
         } else {
-          assert.equal(priority.weight, 36)
+          assert.strictEqual(priority.weight, 36)
         }
         done()
       })
@@ -532,9 +531,9 @@ describe('Transport/Stream', function () {
           assert(!err)
 
           stream.on('priority', function (info) {
-            assert.equal(info.parent, 0)
-            assert.equal(info.exclusive, false)
-            assert.equal(info.weight, 42)
+            assert.strictEqual(info.parent, 0)
+            assert.strictEqual(info.exclusive, false)
+            assert.strictEqual(info.weight, 42)
             done()
           })
         })
@@ -626,8 +625,8 @@ describe('Transport/Stream', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.headers.normal, 'yes')
-        assert.equal(stream.headers['not-trailer'], 'yay')
+        assert.strictEqual(stream.headers.normal, 'yes')
+        assert.strictEqual(stream.headers['not-trailer'], 'yay')
         stream.respond(200, {
         })
         received = true
@@ -650,7 +649,7 @@ describe('Transport/Stream', function () {
           return
         }
 
-        assert.equal(frame.fin, true)
+        assert.strictEqual(frame.fin, true)
         done()
       })
     })
@@ -667,7 +666,7 @@ describe('Transport/Stream', function () {
       server.on('frame', function (frame) {
         if (frame.type !== 'HEADERS') { return }
 
-        assert.equal(frame.fin, true)
+        assert.strictEqual(frame.fin, true)
         done()
       })
     })
@@ -682,7 +681,7 @@ describe('Transport/Stream', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(stream.method, 'POST')
+        assert.strictEqual(stream.method, 'POST')
         expectData(stream, 'hello', done)
       })
     })
@@ -734,10 +733,10 @@ describe('Transport/Stream', function () {
         received = true
 
         assert(sent)
-        assert.equal(stream.headers.other, 'b, c')
+        assert.strictEqual(stream.headers.other, 'b, c')
 
         // NOTE: Browser sends them this way
-        assert.equal(stream.headers.cookie, 'd; e')
+        assert.strictEqual(stream.headers.cookie, 'd; e')
       })
     })
   })

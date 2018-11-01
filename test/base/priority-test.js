@@ -21,12 +21,12 @@ describe('Stream Priority tree', function () {
     tree.add({ id: 3, parent: 0, weight: 2 })
     tree.add({ id: 4, parent: 1, weight: 2 })
 
-    assert.deepEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
+    assert.deepStrictEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
       return tree.get(id).priority
     }), [ 0.25, 0.5, 0.25, 0.125, 0.125 ])
 
     // Ranges
-    assert.deepEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
+    assert.deepStrictEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
       return tree.get(id).getPriorityRange()
     }), [
       // First level
@@ -42,21 +42,21 @@ describe('Stream Priority tree', function () {
 
   it('should create default node on error', function () {
     var node1 = tree.add({ id: 1, parent: 1 })
-    assert.equal(node1.parent.id, 0)
-    assert.equal(node1.weight, tree.defaultWeight)
+    assert.strictEqual(node1.parent.id, 0)
+    assert.strictEqual(node1.weight, tree.defaultWeight)
 
     var node2 = tree.add({ id: 1, parent: 3 })
-    assert.equal(node2.parent.id, 0)
-    assert.equal(node2.weight, tree.defaultWeight)
+    assert.strictEqual(node2.parent.id, 0)
+    assert.strictEqual(node2.weight, tree.defaultWeight)
   })
 
   it('should remove empty node', function () {
     var node = tree.add({ id: 1, parent: 0, weight: 1 })
     assert(tree.get(1) !== undefined)
-    assert.equal(tree.count, 2)
+    assert.strictEqual(tree.count, 2)
     node.remove()
     assert(tree.get(1) === undefined)
-    assert.equal(tree.count, 1)
+    assert.strictEqual(tree.count, 1)
   })
 
   it('should move children to parent node on removal', function () {
@@ -67,12 +67,12 @@ describe('Stream Priority tree', function () {
     tree.add({ id: 3, parent: 0, weight: 2 })
     tree.add({ id: 4, parent: 1, weight: 2 })
 
-    assert.equal(tree.count, 6)
+    assert.strictEqual(tree.count, 6)
     one.remove()
     assert(tree.get(1) === undefined)
-    assert.equal(tree.count, 5)
+    assert.strictEqual(tree.count, 5)
 
-    assert.deepEqual([ 2, 3, 4, 5 ].map(function (id) {
+    assert.deepStrictEqual([ 2, 3, 4, 5 ].map(function (id) {
       return tree.get(id).priority
     }), [ 0.4, 0.2, 0.2, 0.19999999999999996 ])
   })
@@ -89,7 +89,7 @@ describe('Stream Priority tree', function () {
     tree.add({ id: 4, parent: 1, weight: 2 })
     tree.add({ id: 5, parent: 1, weight: 2 })
 
-    assert.deepEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
+    assert.deepStrictEqual([ 1, 2, 3, 4, 5 ].map(function (id) {
       return tree.get(id).priority
     }), [ 0.5, 0.5, 0.25, 0.125, 0.125 ])
 
@@ -102,7 +102,7 @@ describe('Stream Priority tree', function () {
     //    3   4    5
     tree.add({ id: 6, parent: 1, exclusive: true, weight: 2 })
 
-    assert.deepEqual([ 1, 2, 3, 4, 5, 6 ].map(function (id) {
+    assert.deepStrictEqual([ 1, 2, 3, 4, 5, 6 ].map(function (id) {
       return tree.get(id).priority
     }), [ 0.5, 0.5, 0.25, 0.125, 0.125, 0.5 ])
   })
@@ -130,8 +130,8 @@ describe('Stream Priority tree', function () {
     //    3   4    5
     tree.add({ id: 6, parent: 1, exclusive: true, weight: 2 })
 
-    assert.equal(tree.get(1), undefined)
-    assert.deepEqual([ 2, 3, 4, 5, 6 ].map(function (id) {
+    assert.strictEqual(tree.get(1), undefined)
+    assert.deepStrictEqual([ 2, 3, 4, 5, 6 ].map(function (id) {
       return tree.get(id).priority
     }), [ 0.5, 0.25, 0.125, 0.125, 0.5 ])
 
@@ -144,12 +144,12 @@ describe('Stream Priority tree', function () {
   it('should use default weight', function () {
     tree.add({ id: 1, parent: 0 })
 
-    assert.equal(tree.get(1).weight, 16)
+    assert.strictEqual(tree.get(1).weight, 16)
   })
 
   it('should create default node', function () {
     tree.addDefault(1)
 
-    assert.equal(tree.get(1).weight, 16)
+    assert.strictEqual(tree.get(1).weight, 16)
   })
 })

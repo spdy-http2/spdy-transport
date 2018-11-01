@@ -4,7 +4,6 @@ var assert = require('assert')
 var async = require('async')
 var streamPair = require('stream-pair')
 var fixtures = require('./fixtures')
-var Buffer = require('safe-buffer').Buffer
 
 var expectData = fixtures.expectData
 var everyProtocol = fixtures.everyProtocol
@@ -426,7 +425,7 @@ describe('Transport/Connection', function () {
       })
 
       parser.on('data', function (frame) {
-        assert.notEqual(frame.type, 'DATA')
+        assert.notStrictEqual(frame.type, 'DATA')
       })
     })
 
@@ -468,10 +467,10 @@ describe('Transport/Connection', function () {
 
           if (frame.type !== 'HEADERS') { return }
 
-          assert.equal(server._spdyState.pair.decompress._table.size, 4062)
-          assert.equal(client._spdyState.pair.compress._table.size, 4062)
-          assert.equal(client._spdyState.pair.compress._table.maxSize,
-                       client._spdyState.constants.HEADER_TABLE_SIZE)
+          assert.strictEqual(server._spdyState.pair.decompress._table.size, 4062)
+          assert.strictEqual(client._spdyState.pair.compress._table.size, 4062)
+          assert.strictEqual(client._spdyState.pair.compress._table.maxSize,
+            client._spdyState.constants.HEADER_TABLE_SIZE)
           done()
         })
       })
@@ -494,7 +493,7 @@ describe('Transport/Connection', function () {
         })
 
         client.on('frame', function (frame) {
-          assert.notEqual(frame.type, 'GOAWAY')
+          assert.notStrictEqual(frame.type, 'GOAWAY')
         })
       })
 
@@ -531,7 +530,7 @@ describe('Transport/Connection', function () {
 
         client.removeAllListeners('frame')
         client.on('frame', function (frame) {
-          assert.notEqual(frame.type, 'GOAWAY')
+          assert.notStrictEqual(frame.type, 'GOAWAY')
         })
       })
 
@@ -554,7 +553,7 @@ describe('Transport/Connection', function () {
 
         client.removeAllListeners('frame')
         client.on('frame', function (frame) {
-          assert.notEqual(frame.type, 'GOAWAY')
+          assert.notStrictEqual(frame.type, 'GOAWAY')
         })
       })
     }
@@ -572,7 +571,7 @@ describe('Transport/Connection', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(server.getXForwardedFor(), '1.2.3.4')
+        assert.strictEqual(server.getXForwardedFor(), '1.2.3.4')
 
         stream.resume()
         stream.end()

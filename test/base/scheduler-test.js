@@ -30,7 +30,7 @@ describe('Frame Scheduler', function () {
         return
       }
 
-      assert.equal(actual, string)
+      assert.strictEqual(actual, string)
       done()
     })
   }
@@ -107,7 +107,7 @@ describe('Frame Scheduler', function () {
 
   it('should invoke callback on push', function (done) {
     scheduler.schedule(chunk(0, 0, [ 'hello ' ], function () {
-      assert.equal(scheduler.read().toString(), 'hello ')
+      assert.strictEqual(scheduler.read().toString(), 'hello ')
       done()
     }))
   })
@@ -117,6 +117,6 @@ describe('Frame Scheduler', function () {
 
     scheduler.dump()
 
-    assert.equal(scheduler.read() + '', 'hello')
+    assert.strictEqual(scheduler.read() + '', 'hello')
   })
 })
