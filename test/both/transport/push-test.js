@@ -85,6 +85,43 @@ describe('Transport/Push', function () {
     })
 
     if (version >= 4) {
+      it('should not send HEADERS on PUSH_PROMISE if disabled', function (done) {
+        client.request({
+          path: '/parent'
+        }, function (err, stream) {
+          assert(!err)
+
+          stream.on('pushPromise', function (push) {
+            push.on('response', function (status, headers) {
+              assert.strictEqual(status, 201)
+            })
+            push.on('headers', function (headers) {
+              assert(false)
+            })
+            push.on('close', function (err) {
+              assert(!err)
+              done()
+            })
+            push.resume()
+          })
+        })
+
+        server.on('stream', function (stream) {
+          assert.strictEqual(stream.path, '/parent')
+
+          stream.respond(200, {})
+          stream.pushPromise({
+            path: '/push',
+            response: false
+          }, function (err, stream) {
+            assert(!err)
+
+            stream.respond(201)
+            stream.end()
+          })
+        })
+      })
+
       it('should send PUSH_PROMISE+HEADERS and HEADERS concurrently',
         function (done) {
           var seq = []
