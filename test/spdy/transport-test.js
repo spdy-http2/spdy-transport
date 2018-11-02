@@ -31,12 +31,12 @@ describe('SPDY Transport', function () {
   describe('autoSpdy31', function () {
     it('should automatically switch on server', function (done) {
       server.start(3)
-      assert.equal(server.getVersion(), 3)
+      assert.strictEqual(server.getVersion(), 3)
 
       client.start(3.1)
 
       server.on('version', function () {
-        assert.equal(server.getVersion(), 3.1)
+        assert.strictEqual(server.getVersion(), 3.1)
         done()
       })
     })
@@ -47,7 +47,7 @@ describe('SPDY Transport', function () {
       client.start(2)
 
       server.on('version', function () {
-        assert.equal(server.getVersion(), 2)
+        assert.strictEqual(server.getVersion(), 2)
         done()
       })
     })
@@ -56,7 +56,7 @@ describe('SPDY Transport', function () {
       client.start(3)
 
       server.on('version', function () {
-        assert.equal(server.getVersion(), 3)
+        assert.strictEqual(server.getVersion(), 3)
         done()
       })
     })
@@ -90,7 +90,7 @@ describe('SPDY Transport', function () {
       })
 
       stream.on('end', function () {
-        assert.equal(received, buf.length * 4)
+        assert.strictEqual(received, buf.length * 4)
         done()
       })
     })

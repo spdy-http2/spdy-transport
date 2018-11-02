@@ -230,12 +230,12 @@ describe('Framer', function () {
           var waiting = big.length
           var actual = ''
           parser.on('data', function (frame) {
-            assert.equal(frame.type, 'DATA')
+            assert.strictEqual(frame.type, 'DATA')
             actual += frame.data
             waiting -= frame.data.length
             if (waiting !== 0) { return }
 
-            assert.equal(actual, big.toString())
+            assert.strictEqual(actual, big.toString())
             done()
           })
         })
@@ -256,9 +256,9 @@ describe('Framer', function () {
             fin: false,
             data: Buffer.from('hello')
           }, function () {
-            assert.equal(framer.window.send.current,
-                         parser.window.recv.current)
-            assert.equal(framer.window.send.current, 1024 * 1024 - 5)
+            assert.strictEqual(framer.window.send.current,
+              parser.window.recv.current)
+            assert.strictEqual(framer.window.send.current, 1024 * 1024 - 5)
             done()
           })
         })
@@ -494,9 +494,9 @@ describe('Framer', function () {
               a: 'b'
             }
           }, function () {
-            assert.equal(framer.window.send.current,
-                         parser.window.recv.current)
-            assert.equal(framer.window.send.current, 1024 * 1024)
+            assert.strictEqual(framer.window.send.current,
+              parser.window.recv.current)
+            assert.strictEqual(framer.window.send.current, 1024 * 1024)
             done()
           })
         })
@@ -605,23 +605,23 @@ describe('Framer', function () {
 
       if (version >= 4) {
         it('should fail to generate regular frame on disabled PUSH',
-           function (done) {
-             framer.pushFrame({
-               id: 3,
-               promisedId: 41,
-               path: '/',
-               host: 'localhost',
-               method: 'GET',
-               status: 200,
-               headers: {
-                 a: 'b'
-               }
-             }, function (err) {
-               assert(err)
-               done()
-             })
-             framer.enablePush(false)
-           })
+          function (done) {
+            framer.pushFrame({
+              id: 3,
+              promisedId: 41,
+              path: '/',
+              host: 'localhost',
+              method: 'GET',
+              status: 200,
+              headers: {
+                a: 'b'
+              }
+            }, function (err) {
+              assert(err)
+              done()
+            })
+            framer.enablePush(false)
+          })
       }
     })
 

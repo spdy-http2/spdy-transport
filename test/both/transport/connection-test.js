@@ -468,10 +468,10 @@ describe('Transport/Connection', function () {
 
           if (frame.type !== 'HEADERS') { return }
 
-          assert.equal(server._spdyState.pair.decompress._table.size, 4062)
-          assert.equal(client._spdyState.pair.compress._table.size, 4062)
-          assert.equal(client._spdyState.pair.compress._table.maxSize,
-                       client._spdyState.constants.HEADER_TABLE_SIZE)
+          assert.strictEqual(server._spdyState.pair.decompress._table.size, 4062)
+          assert.strictEqual(client._spdyState.pair.compress._table.size, 4062)
+          assert.strictEqual(client._spdyState.pair.compress._table.maxSize,
+            client._spdyState.constants.HEADER_TABLE_SIZE)
           done()
         })
       })
@@ -572,7 +572,7 @@ describe('Transport/Connection', function () {
       })
 
       server.on('stream', function (stream) {
-        assert.equal(server.getXForwardedFor(), '1.2.3.4')
+        assert.strictEqual(server.getXForwardedFor(), '1.2.3.4')
 
         stream.resume()
         stream.end()
