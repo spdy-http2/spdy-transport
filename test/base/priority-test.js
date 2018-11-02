@@ -152,4 +152,12 @@ describe('Stream Priority tree', function () {
 
     assert.strictEqual(tree.get(1).weight, 16)
   })
+
+  it('Removing a node should remove it from the tree\'s list', function () {
+    tree.addDefault(1)
+
+    tree.get(1).remove()
+
+    assert.strictEqual(tree.list[0], undefined)
+  })
 })
